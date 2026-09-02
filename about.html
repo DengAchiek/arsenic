@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us — Arsenic Energies</title>
+<meta name="description" content="Learn about Arsenic Energies — our mission, team, and commitment to reliable solar power solutions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { bg:'#0B0F0E', surface:'#121817', primary:'#F5B82E', secondary:'#F97316', green:'#22C55E', muted:'#A7B0AE' },
+    fontFamily: { display: ['Space Grotesk','sans-serif'], sans: ['Inter','sans-serif'] }
+  }}}
+</script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav id="site-nav" aria-label="Primary">
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-10 flex items-center justify-between py-5">
+    <a href="index.html" class="font-display leading-none">
+      <span class="block text-[15px] tracking-wide font-semibold">ARSENIC</span>
+      <span class="block text-[11px] tracking-[0.2em]" style="color:var(--primary)">ENERGIES</span>
+    </a>
+    <div class="hidden lg:flex items-center gap-9">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="shop.html" class="nav-link">Shop</a>
+      <a href="shop.html?cat=solar-panels" class="nav-link">Solar Systems</a>
+      <a href="shop.html?cat=electronics" class="nav-link">Electronics</a>
+      <a href="index.html#solutions" class="nav-link">Solutions</a>
+      <a href="index.html#footer" class="nav-link">Contact</a>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="cart-icon-btn" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/5 transition-colors" aria-label="Open cart">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M2 3h2l2.4 12.2A2 2 0 0 0 8.4 17H17a2 2 0 0 0 2-1.6L21 6H5"/></svg>
+        <span class="cart-count absolute -top-0.5 -right-0.5 items-center justify-center w-4 h-4 rounded-full text-[10px] font-semibold" style="background:var(--primary); color:#14100A; display:none;">0</span>
+      </button>
+      <button id="mobile-menu-btn" class="lg:hidden flex items-center justify-center w-10 h-10" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div id="mobile-overlay" class="fixed inset-0 bg-black/60 z-[110]" style="opacity:0;pointer-events:none;transition:opacity .35s ease"></div>
+<div id="mobile-drawer" class="fixed top-0 right-0 bottom-0 w-[82%] max-w-sm z-[120] p-6 flex flex-col" style="background:var(--surface)">
+  <div class="flex justify-between items-center mb-8">
+    <span class="font-display text-sm tracking-widest">MENU</span>
+    <button id="mobile-menu-close" aria-label="Close menu" class="w-9 h-9 flex items-center justify-center">✕</button>
+  </div>
+  <div class="flex flex-col gap-5 text-lg font-display">
+    <a href="index.html">Home</a>
+    <a href="shop.html">Shop</a>
+    <a href="index.html#solutions">Solutions</a>
+    <a href="about.html">About</a>
+    <a href="index.html#footer">Contact</a>
+  </div>
+</div>
+
+<main id="main" class="pt-32 lg:pt-40 pb-24 max-w-[1400px] mx-auto px-6 lg:px-10">
+  <div class="max-w-3xl mx-auto text-center reveal">
+    <p class="nameplate mx-auto mb-6"><span class="dot"></span> ABOUT US</p>
+    <h1 class="font-display text-4xl lg:text-6xl leading-tight">Powering life, <br>one system at a time</h1>
+    <p class="mt-6 text-lg" style="color:var(--muted)">Arsenic Energies was built on a simple belief: reliable energy shouldn't be complicated.</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-12 mt-20 reveal-stagger">
+    <div>
+      <h2 class="font-display text-2xl mb-4">Our mission</h2>
+      <p class="text-base leading-relaxed" style="color:var(--muted)">To deliver solar power systems, backup energy solutions and electrical products that are dependable, transparently priced, and tailored to how people actually use electricity. We combine quality hardware with straightforward guidance — because the right system is the one that works for you, not the one with the most impressive spec sheet.</p>
+    </div>
+    <div>
+      <h2 class="font-display text-2xl mb-4">Who we serve</h2>
+      <p class="text-base leading-relaxed" style="color:var(--muted)">Homeowners looking for reliable backup power. Businesses wanting to cut energy costs and downtime. Institutions that need consistent electricity. And anyone in between who wants to take control of their power supply without navigating confusing jargon or hidden costs.</p>
+    </div>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-20 pt-12 border-t" style="border-color:var(--line)">
+    <div>
+      <p class="stat-num text-4xl" style="color:var(--primary)">10+</p>
+      <p class="text-sm mt-1" style="color:var(--muted-2)">Product lines</p>
+    </div>
+    <div>
+      <p class="stat-num text-4xl" style="color:var(--primary)">500+</p>
+      <p class="text-sm mt-1" style="color:var(--muted-2)">Customers served</p>
+    </div>
+    <div>
+      <p class="stat-num text-4xl" style="color:var(--primary)">24/7</p>
+      <p class="text-sm mt-1" style="color:var(--muted-2)">Power solutions</p>
+    </div>
+    <div>
+      <p class="stat-num text-4xl" style="color:var(--primary)">100%</p>
+      <p class="text-sm mt-1" style="color:var(--muted-2)">Quality-checked stock</p>
+    </div>
+  </div>
+</main>
+
+<footer id="footer" class="pt-16 pb-10 border-t" style="background:var(--bg); border-color:var(--line)">
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-10 text-xs text-center" style="color:var(--muted-2)">
+    © 2026 Arsenic Energies. All rights reserved.
+  </div>
+</footer>
+
+<div id="cart-overlay" class="fixed inset-0 bg-black/60 z-[150]"></div>
+<aside id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] z-[160] flex flex-col" style="background:var(--surface)" aria-label="Shopping cart">
+  <div class="flex items-center justify-between px-5 py-5 border-b" style="border-color:var(--line)">
+    <p class="font-display text-lg">Your cart</p>
+    <button id="cart-close-btn" aria-label="Close cart" class="w-9 h-9 flex items-center justify-center">✕</button>
+  </div>
+  <div id="cart-body" class="flex-1 overflow-y-auto"></div>
+  <div id="cart-footer" class="p-5 border-t" style="border-color:var(--line)"></div>
+</aside>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[180] px-5 py-3 rounded-full flex items-center gap-2 text-sm" style="background:var(--primary); color:#14100A">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14100A" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+  <span>Added to cart</span>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
