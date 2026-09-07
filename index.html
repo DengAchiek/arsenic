@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="js/tailwind-config.js?v=20260907-images"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/styles.css?v=20260907-flow">
 </head>
 <body data-page="home">
 <a href="#main" class="skip-link">Skip to content</a>
@@ -34,18 +34,119 @@
         </div>
       </div>
       <div class="reveal relative">
-        <svg viewBox="0 0 480 420" class="w-full h-auto" role="img" aria-label="Energy flow diagram">
-          <rect x="0" y="0" width="480" height="420" fill="transparent"/>
-          <circle cx="70" cy="60" r="26" fill="#F5B82E" opacity="0.9" class="node-glow"/>
-          <rect x="150" y="30" width="120" height="70" rx="8" fill="#1a2624" stroke="#2c3735"/>
-          <text x="210" y="118" text-anchor="middle" fill="#A7B0AE" font-size="11" font-family="Space Grotesk">SOLAR ARRAY</text>
-          <rect x="250" y="180" width="100" height="60" rx="10" fill="var(--surface)" stroke="#2c3735"/>
-          <text x="300" y="215" text-anchor="middle" fill="#F5B82E" font-size="10" font-family="Space Grotesk">INVERTER</text>
-          <rect x="120" y="285" width="90" height="55" rx="10" fill="var(--surface)" stroke="#2c3735"/>
-          <rect x="205" y="300" width="6" height="24" rx="2" fill="#2c3735"/>
-          <text x="165" y="352" text-anchor="middle" fill="#A7B0AE" font-size="10" font-family="Space Grotesk">BATTERY</text>
-          <path d="M340 400 v-45 l40-28 40 28 v45 z" fill="var(--surface)" stroke="#2c3735"/>
-          <text x="380" y="412" text-anchor="middle" fill="#A7B0AE" font-size="10" font-family="Space Grotesk">HOME</text>
+        <svg viewBox="0 0 560 460" class="hero-simulation w-full h-auto" role="img" aria-label="Animated power transfer from sun to solar panels, inverter, battery storage, and homes">
+          <defs>
+            <radialGradient id="sun-glow" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stop-color="#FFE8A3"/>
+              <stop offset="56%" stop-color="#F5B82E"/>
+              <stop offset="100%" stop-color="#F97316"/>
+            </radialGradient>
+            <linearGradient id="panel-glass" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#24312F"/>
+              <stop offset="45%" stop-color="#101817"/>
+              <stop offset="100%" stop-color="#030706"/>
+            </linearGradient>
+            <linearGradient id="energy-gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#F5B82E"/>
+              <stop offset="50%" stop-color="#22C55E"/>
+              <stop offset="100%" stop-color="#F97316"/>
+            </linearGradient>
+            <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <rect x="0" y="0" width="560" height="460" fill="transparent"/>
+
+          <path id="flow-sun-array" class="energy-path sunlight" d="M112 82 C155 58 196 55 234 76"/>
+          <path id="flow-array-inverter" class="energy-path" d="M282 154 C304 186 327 203 356 214"/>
+          <path id="flow-inverter-battery" class="energy-path storage" d="M338 256 C284 292 247 315 196 333"/>
+          <path id="flow-battery-inverter" class="energy-path backup" d="M211 359 C270 356 323 331 364 276"/>
+          <path id="flow-inverter-home" class="energy-path demand" d="M424 246 C463 252 491 279 511 322"/>
+          <path id="flow-inverter-home-two" class="energy-path demand secondary" d="M424 225 C464 210 499 218 523 248"/>
+
+          <g class="sun-system" filter="url(#soft-glow)">
+            <g class="sun-rays">
+              <line x1="82" y1="18" x2="82" y2="0"/>
+              <line x1="82" y1="164" x2="82" y2="146"/>
+              <line x1="18" y1="82" x2="0" y2="82"/>
+              <line x1="164" y1="82" x2="146" y2="82"/>
+              <line x1="36" y1="36" x2="23" y2="23"/>
+              <line x1="128" y1="128" x2="141" y2="141"/>
+              <line x1="128" y1="36" x2="141" y2="23"/>
+              <line x1="36" y1="128" x2="23" y2="141"/>
+              <animateTransform attributeName="transform" type="rotate" from="0 82 82" to="360 82 82" dur="24s" repeatCount="indefinite"/>
+            </g>
+            <circle cx="82" cy="82" r="36" fill="url(#sun-glow)" class="node-glow"/>
+            <circle cx="82" cy="82" r="49" fill="none" stroke="#F5B82E" stroke-opacity="0.13"/>
+          </g>
+          <text x="82" y="145" text-anchor="middle" fill="#A7B0AE" font-size="11" font-family="Space Grotesk">SUNLIGHT</text>
+
+          <g class="solar-array">
+            <polygon points="210,62 332,90 291,176 162,143" fill="url(#panel-glass)" stroke="#46524F" stroke-width="2"/>
+            <g class="panel-lines" stroke="#5D6C68" stroke-width="1">
+              <path d="M189 68 L142 148"/>
+              <path d="M219 75 L174 156"/>
+              <path d="M250 82 L207 164"/>
+              <path d="M282 89 L240 171"/>
+              <path d="M313 96 L273 178"/>
+              <path d="M196 96 L318 124"/>
+              <path d="M181 125 L303 153"/>
+            </g>
+            <polygon points="210,62 332,90 291,176 162,143" fill="#F5B82E" opacity="0.06" class="panel-charge"/>
+            <text x="244" y="205" text-anchor="middle" fill="#A7B0AE" font-size="11" font-family="Space Grotesk">SOLAR ARRAY</text>
+          </g>
+
+          <g class="inverter-node">
+            <rect x="348" y="199" width="82" height="74" rx="12" fill="var(--surface)" stroke="#35413E" stroke-width="2"/>
+            <rect x="366" y="214" width="46" height="22" rx="5" fill="#0B0F0E" stroke="#283532"/>
+            <circle cx="374" cy="250" r="4" fill="#22C55E" class="pulse-dot"/>
+            <circle cx="389" cy="250" r="4" fill="#F5B82E" class="pulse-dot delay-one"/>
+            <circle cx="404" cy="250" r="4" fill="#F97316" class="pulse-dot delay-two"/>
+            <text x="389" y="295" text-anchor="middle" fill="#F5B82E" font-size="10" font-family="Space Grotesk">INVERTER</text>
+          </g>
+
+          <g class="battery-node">
+            <rect x="103" y="313" width="104" height="64" rx="10" fill="var(--surface)" stroke="#35413E" stroke-width="2"/>
+            <rect x="207" y="333" width="8" height="24" rx="2" fill="#35413E"/>
+            <rect x="117" y="328" width="18" height="34" rx="3" fill="#1A211F" stroke="#2F3A37"/>
+            <rect x="143" y="328" width="18" height="34" rx="3" fill="#1A211F" stroke="#2F3A37"/>
+            <rect x="169" y="328" width="18" height="34" rx="3" fill="#1A211F" stroke="#2F3A37"/>
+            <rect x="117" y="352" width="70" height="10" rx="3" fill="#22C55E" opacity="0.74" class="battery-fill"/>
+            <text x="158" y="402" text-anchor="middle" fill="#A7B0AE" font-size="11" font-family="Space Grotesk">BATTERY STORAGE</text>
+          </g>
+
+          <g class="home-node">
+            <path d="M462 394 v-55 l43-31 43 31 v55 z" fill="var(--surface)" stroke="#35413E" stroke-width="2"/>
+            <path d="M474 394 v-40 h20 v40" fill="#101817" stroke="#2F3A37"/>
+            <rect x="510" y="354" width="20" height="18" rx="3" fill="#F5B82E" opacity="0.25" class="home-light"/>
+            <path d="M444 394 v-39 l-25-18 -25 18 v39 z" fill="#101817" stroke="#2F3A37" stroke-width="2"/>
+            <rect x="411" y="363" width="14" height="13" rx="2" fill="#22C55E" opacity="0.25" class="home-light delay-one"/>
+            <text x="472" y="426" text-anchor="middle" fill="#A7B0AE" font-size="11" font-family="Space Grotesk">HOMES</text>
+          </g>
+
+          <g class="energy-packets" filter="url(#soft-glow)">
+            <circle r="4.5" fill="#F5B82E"><animateMotion dur="1.9s" repeatCount="indefinite"><mpath href="#flow-sun-array"/></animateMotion></circle>
+            <circle r="3.5" fill="#FFE8A3"><animateMotion dur="1.9s" begin=".65s" repeatCount="indefinite"><mpath href="#flow-sun-array"/></animateMotion></circle>
+            <circle r="4" fill="#22C55E"><animateMotion dur="1.7s" repeatCount="indefinite"><mpath href="#flow-array-inverter"/></animateMotion></circle>
+            <circle r="3.5" fill="#F5B82E"><animateMotion dur="1.7s" begin=".55s" repeatCount="indefinite"><mpath href="#flow-array-inverter"/></animateMotion></circle>
+            <circle r="4" fill="#22C55E"><animateMotion dur="2.25s" repeatCount="indefinite"><mpath href="#flow-inverter-battery"/></animateMotion></circle>
+            <circle r="3.5" fill="#22C55E"><animateMotion dur="2.25s" begin=".75s" repeatCount="indefinite"><mpath href="#flow-inverter-battery"/></animateMotion></circle>
+            <circle r="3.8" fill="#F97316"><animateMotion dur="2.7s" repeatCount="indefinite"><mpath href="#flow-battery-inverter"/></animateMotion></circle>
+            <circle r="4.5" fill="#F5B82E"><animateMotion dur="1.9s" repeatCount="indefinite"><mpath href="#flow-inverter-home"/></animateMotion></circle>
+            <circle r="3.5" fill="#F97316"><animateMotion dur="2.1s" begin=".8s" repeatCount="indefinite"><mpath href="#flow-inverter-home-two"/></animateMotion></circle>
+          </g>
+
+          <g class="flow-labels" font-family="Space Grotesk" font-size="9" fill="#6E7876">
+            <text x="162" y="48">SUN TO PANEL</text>
+            <text x="304" y="186">DC POWER</text>
+            <text x="235" y="302">CHARGE</text>
+            <text x="276" y="374">BACKUP</text>
+            <text x="465" y="238">LOAD</text>
+          </g>
         </svg>
       </div>
     </div>

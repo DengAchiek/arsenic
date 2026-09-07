@@ -274,18 +274,90 @@ body {
 }
 
 /* ---------- Energy flow diagram ---------- */
+.hero-simulation {
+  overflow: visible;
+}
+
+.sun-rays line {
+  stroke: var(--primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.42;
+}
+
+.energy-path,
 .flow-line {
-  stroke-dasharray: 6 8;
+  fill: none;
+  stroke: url(#energy-gradient);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 8 12;
+  opacity: 0.86;
   animation: dash 1.4s linear infinite;
 }
-@keyframes dash { to { stroke-dashoffset: -28; } }
+
+.energy-path.sunlight {
+  stroke: var(--primary);
+}
+
+.energy-path.storage {
+  stroke: var(--green);
+}
+
+.energy-path.backup {
+  stroke: var(--secondary);
+  opacity: 0.65;
+  animation-duration: 2.2s;
+}
+
+.energy-path.demand {
+  stroke: var(--primary);
+}
+
+.energy-path.secondary {
+  opacity: 0.6;
+  animation-duration: 1.9s;
+}
+
+@keyframes dash { to { stroke-dashoffset: -40; } }
+
 .pulse-dot { animation: pulseglow 2.4s ease-in-out infinite; }
+.delay-one { animation-delay: .6s; }
+.delay-two { animation-delay: 1.2s; }
+
 @keyframes pulseglow {
   0%, 100% { opacity: 0.35; r: 3; }
   50% { opacity: 1; r: 4.5; }
 }
+
 .node-glow { filter: drop-shadow(0 0 10px rgba(245,184,46,0.45)); }
 
+.panel-charge {
+  animation: panelcharge 3.2s ease-in-out infinite;
+}
+
+@keyframes panelcharge {
+  0%, 100% { opacity: 0.04; }
+  50% { opacity: 0.18; }
+}
+
+.battery-fill {
+  animation: batterypulse 4.2s ease-in-out infinite;
+}
+
+@keyframes batterypulse {
+  0%, 100% { opacity: 0.42; }
+  45% { opacity: 0.88; }
+}
+
+.home-light {
+  animation: homelight 2.8s ease-in-out infinite;
+}
+
+@keyframes homelight {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.72; }
+}
 
 /* ---------- Search Modal ---------- */
 #search-modal {
