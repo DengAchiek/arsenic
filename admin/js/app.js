@@ -31,6 +31,11 @@
     return '$' + (Number(value) || 0).toFixed(2);
   }
 
+  function mediaURL(src) {
+    if (!src || /^(https?:|data:|\/)/.test(src)) return src || '';
+    return src.indexOf('../') === 0 ? src : '../' + src;
+  }
+
   function showToast(message) {
     var toast = get('toast');
     if (!toast) return;
@@ -74,7 +79,7 @@
     body.innerHTML = products.map(function (product) {
       return [
         '<tr>',
-        '<td><img src="', escapeHTML(product.img), '" alt="', escapeHTML(product.name), '" class="w-10 h-10 object-cover rounded-md"></td>',
+        '<td><img src="', escapeHTML(mediaURL(product.img)), '" alt="', escapeHTML(product.name), '" class="w-10 h-10 object-cover rounded-md"></td>',
         '<td class="font-medium">', escapeHTML(product.name), '</td>',
         '<td style="color:var(--muted-2)">', escapeHTML(product.category), '</td>',
         '<td>', money(product.price), '</td>',
@@ -100,7 +105,7 @@
     body.innerHTML = categories.map(function (category) {
       return [
         '<tr>',
-        '<td><img src="', escapeHTML(category.img), '" alt="', escapeHTML(category.name), '" class="w-10 h-10 object-cover rounded-md"></td>',
+        '<td><img src="', escapeHTML(mediaURL(category.img)), '" alt="', escapeHTML(category.name), '" class="w-10 h-10 object-cover rounded-md"></td>',
         '<td class="font-medium">', escapeHTML(category.name), '</td>',
         '<td style="color:var(--muted-2)">', escapeHTML(category.slug), '</td>',
         '<td>', escapeHTML(category.count || 0), '</td>',

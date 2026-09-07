@@ -1,0 +1,125 @@
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+.admin-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.admin-card:hover {
+  border-color: rgba(245,184,46,0.3);
+}
+
+.btn-admin {
+  background: var(--primary);
+  color: #14100A;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-admin:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.btn-admin-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-admin-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-admin-outline {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.btn-admin-outline:hover {
+  border-color: var(--primary);
+}
+
+.form-input {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: var(--text);
+  width: 100%;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-label {
+  color: var(--muted-2);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  color: var(--muted-2);
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+td {
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 14px;
+}
+
+tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-instock {
+  background: rgba(34,197,94,0.15);
+  color: var(--green);
+}
+
+.status-outofstock {
+  background: rgba(220,38,38,0.15);
+  color: #dc2626;
+}
+
+.tab-active {
+  border-bottom: 2px solid var(--primary);
+  color: var(--text);
+}

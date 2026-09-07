@@ -14,7 +14,14 @@
   function readCatalog() {
     try {
       var raw = localStorage.getItem(DATA_KEY);
-      if (raw) return normalize(JSON.parse(raw));
+      if (raw) {
+        var catalog = normalize(JSON.parse(raw));
+        if (catalog.__shouldPersist) {
+          delete catalog.__shouldPersist;
+          writeCatalog(catalog);
+        }
+        return catalog;
+      }
     } catch (error) {
       // Fall through to seed data.
     }
@@ -33,9 +40,32 @@
 
   function normalize(catalog) {
     catalog = catalog || seedCatalog();
+    var seed = seedCatalog();
     catalog.products = Array.isArray(catalog.products) ? catalog.products : [];
     catalog.categories = Array.isArray(catalog.categories) ? catalog.categories : [];
     catalog.orders = Array.isArray(catalog.orders) ? catalog.orders : [];
+    if (seed.imageVersion && catalog.imageVersion !== seed.imageVersion) {
+      catalog.products = catalog.products.map(function (product) {
+        var seedProduct = seed.products.find(function (item) {
+          return item.id === product.id;
+        });
+        return seedProduct ? Object.assign({}, product, {
+          img: seedProduct.img,
+          img2: seedProduct.img2,
+          updatedAt: seedProduct.updatedAt
+        }) : product;
+      });
+      catalog.categories = catalog.categories.map(function (category) {
+        var seedCategory = seed.categories.find(function (item) {
+          return item.id === category.id;
+        });
+        return seedCategory ? Object.assign({}, category, {
+          img: seedCategory.img
+        }) : category;
+      });
+      catalog.imageVersion = seed.imageVersion;
+      catalog.__shouldPersist = true;
+    }
     catalog.categories = catalog.categories.map(function (category) {
       return Object.assign({}, category, {
         count: catalog.products.filter(function (product) {

@@ -4,6 +4,7 @@
   var now = new Date().toISOString();
 
   window.ARSENIC_SEED_DATA = {
+    imageVersion: '2026-09-product-images',
     products: [
       {
         id: 'sp-550',
@@ -16,8 +17,8 @@
         reviews: 64,
         badge: 'New',
         badgeType: 'gold',
-        img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80',
-        img2: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=80',
+        img: 'assets/images/products/monocrystalline-solar-panel.png',
+        img2: 'assets/images/products/complete-home-solar-kit.png',
         desc: 'High-efficiency monocrystalline cell panel built for maximum yield.',
         specs: {
           'Power output': '550W',
@@ -41,8 +42,8 @@
         reviews: 41,
         badge: null,
         badgeType: null,
-        img: 'https://images.unsplash.com/photo-1624397640148-949b1732bb0a?w=800&q=80',
-        img2: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=80',
+        img: 'assets/images/products/hybrid-solar-inverter.png',
+        img2: 'assets/images/products/complete-home-solar-kit.png',
         desc: 'Grid-tie and off-grid capable hybrid inverter with integrated MPPT.',
         specs: {
           Capacity: '5000W',
@@ -66,8 +67,8 @@
         reviews: 88,
         badge: '-11%',
         badgeType: 'orange',
-        img: 'https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=800&q=80',
-        img2: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80',
+        img: 'assets/images/products/lifepo4-lithium-battery.png',
+        img2: 'assets/images/products/complete-home-solar-kit.png',
         desc: 'LiFePO4 storage for daily cycling and dependable backup power.',
         specs: {
           Capacity: '10kWh',
@@ -91,8 +92,8 @@
         reviews: 29,
         badge: null,
         badgeType: null,
-        img: 'https://images.unsplash.com/photo-1518005068251-37900150dfca?w=800&q=80',
-        img2: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80',
+        img: 'assets/images/products/portable-solar-generator.png',
+        img2: 'assets/images/products/complete-home-solar-kit.png',
         desc: 'All-in-one portable power station with a folding 120W panel.',
         specs: {
           Output: '1200W (2400W surge)',
@@ -116,8 +117,8 @@
         reviews: 18,
         badge: null,
         badgeType: null,
-        img: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&q=80',
-        img2: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+        img: 'assets/images/products/solar-protection-breaker-kit.png',
+        img2: 'assets/images/products/complete-home-solar-kit.png',
         desc: 'Breakers, surge protection, and isolators for small solar installs.',
         specs: {
           Rating: '63A',
@@ -141,8 +142,8 @@
         reviews: 36,
         badge: 'Popular',
         badgeType: 'gold',
-        img: 'https://images.unsplash.com/photo-1565636192335-4f60ce6a3d47?w=800&q=80',
-        img2: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+        img: 'assets/images/products/smart-energy-monitor.png',
+        img2: 'assets/images/products/smart-energy-monitor.png',
         desc: 'Track household energy use and spot heavy loads in real time.',
         specs: {
           Connectivity: 'Wi-Fi',
@@ -163,7 +164,7 @@
         slug: 'solar-panels',
         count: 0,
         desc: 'High-efficiency panels for residential and commercial roofs.',
-        img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=900&q=80'
+        img: 'assets/images/products/monocrystalline-solar-panel.png'
       },
       {
         id: 'cat_2',
@@ -171,7 +172,7 @@
         slug: 'inverters',
         count: 0,
         desc: 'Reliable conversion and management of solar-generated power.',
-        img: 'https://images.unsplash.com/photo-1624397640148-949b1732bb0a?w=900&q=80'
+        img: 'assets/images/products/hybrid-solar-inverter.png'
       },
       {
         id: 'cat_3',
@@ -179,7 +180,7 @@
         slug: 'batteries',
         count: 0,
         desc: 'Storage for backup power and true energy independence.',
-        img: 'https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=900&q=80'
+        img: 'assets/images/products/lifepo4-lithium-battery.png'
       },
       {
         id: 'cat_4',
@@ -187,7 +188,7 @@
         slug: 'solar-kits',
         count: 0,
         desc: 'Complete packages sized to your household or site.',
-        img: 'https://images.unsplash.com/photo-1518005068251-37900150dfca?w=900&q=80'
+        img: 'assets/images/products/complete-home-solar-kit.png'
       },
       {
         id: 'cat_5',
@@ -195,7 +196,7 @@
         slug: 'electrical-products',
         count: 0,
         desc: 'Switches, cable, breakers, sockets, and connectors.',
-        img: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=900&q=80'
+        img: 'assets/images/products/solar-protection-breaker-kit.png'
       },
       {
         id: 'cat_6',
@@ -203,7 +204,7 @@
         slug: 'electronics',
         count: 0,
         desc: 'Selected electronics and smart energy accessories.',
-        img: 'https://images.unsplash.com/photo-1565636192335-4f60ce6a3d47?w=900&q=80'
+        img: 'assets/images/products/smart-energy-monitor.png'
       }
     ],
     orders: [],
