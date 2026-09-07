@@ -40,3 +40,12 @@ The project uses browser `localStorage`:
 - `ae_cart` - Public shopping cart items.
 - `ae_wishlist` - Saved product IDs.
 - `ae_profile` - Lightweight public account profile.
+
+## Production Backend
+
+- `backend/` - Django + PostgreSQL commerce API for product/category updates, orders, Stripe Checkout, sales inquiries, email notifications, staff admin, audit logs, and Cloudflare-aware security settings.
+- `js/backend-config.js` and `js/backend-api.js` - Optional frontend bridge. Leave `apiBaseUrl` blank for static demo mode, or set it to a deployed Django API such as `https://api.arsenicenergies.com/api`.
+- Customer account login/register is required before secure checkout when the backend API is enabled.
+- `checkout-success.html` - Stripe Checkout success return page.
+
+See `backend/README.md` for setup, deployment, Stripe webhook, SendGrid/AWS SES, and Cloudflare configuration.

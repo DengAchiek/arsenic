@@ -71,6 +71,17 @@
     return normalized;
   }
 
+  function syncRemoteCatalog() {
+    if (!root.api || !root.api.isEnabled()) return Promise.resolve(false);
+    return root.api.getCatalog().then(function (catalog) {
+      saveCatalog(catalog);
+      return true;
+    }).catch(function (error) {
+      if (window.console && console.warn) console.warn('Catalog API unavailable:', error.message);
+      return false;
+    });
+  }
+
   function products() {
     return loadCatalog().products;
   }
@@ -193,6 +204,7 @@
     Store: Store,
     loadCatalog: loadCatalog,
     saveCatalog: saveCatalog,
+    syncRemoteCatalog: syncRemoteCatalog,
     products: products,
     categories: categories,
     findProduct: findProduct,

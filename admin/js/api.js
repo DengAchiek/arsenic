@@ -38,6 +38,10 @@
     return normalized;
   }
 
+  function backend() {
+    return window.Arsenic && window.Arsenic.api && window.Arsenic.api.isEnabled() ? window.Arsenic.api : null;
+  }
+
   function normalize(catalog) {
     catalog = catalog || seedCatalog();
     var seed = seedCatalog();
@@ -88,18 +92,22 @@
 
   window.API = {
     getProducts: function () {
+      if (backend()) return backend().getProducts();
       return Promise.resolve(readCatalog().products);
     },
     getCategories: function () {
+      if (backend()) return backend().getCategories();
       return Promise.resolve(readCatalog().categories);
     },
     getOrders: function () {
+      if (backend()) return backend().getOrders();
       return Promise.resolve(readCatalog().orders);
     },
     getProfile: function () {
       return Promise.resolve(readCatalog().profile || null);
     },
     createProduct: function (data) {
+      if (backend()) return backend().createProduct(data);
       var catalog = readCatalog();
       var now = new Date().toISOString();
       var item = Object.assign({}, data, {
@@ -112,6 +120,7 @@
       return Promise.resolve(item);
     },
     updateProduct: function (id, data) {
+      if (backend()) return backend().updateProduct(id, data);
       var catalog = readCatalog();
       var index = findIndexById(catalog.products, id);
       if (index === -1) return Promise.reject(new Error('Product not found'));
@@ -123,6 +132,7 @@
       return Promise.resolve(catalog.products[index]);
     },
     deleteProduct: function (id) {
+      if (backend()) return backend().deleteProduct(id);
       var catalog = readCatalog();
       catalog.products = catalog.products.filter(function (product) {
         return product.id !== id;
@@ -131,6 +141,7 @@
       return Promise.resolve({ success: true });
     },
     createCategory: function (data) {
+      if (backend()) return backend().createCategory(data);
       var catalog = readCatalog();
       var item = Object.assign({}, data, {
         id: data.id || generateId('cat')
@@ -140,6 +151,7 @@
       return Promise.resolve(item);
     },
     updateCategory: function (id, data) {
+      if (backend()) return backend().updateCategory(id, data);
       var catalog = readCatalog();
       var index = findIndexById(catalog.categories, id);
       if (index === -1) return Promise.reject(new Error('Category not found'));
@@ -148,6 +160,7 @@
       return Promise.resolve(catalog.categories[index]);
     },
     deleteCategory: function (id) {
+      if (backend()) return backend().deleteCategory(id);
       var catalog = readCatalog();
       catalog.categories = catalog.categories.filter(function (category) {
         return category.id !== id;
@@ -156,6 +169,7 @@
       return Promise.resolve({ success: true });
     },
     uploadImage: function (file) {
+      if (backend()) return backend().uploadImage(file);
       return new Promise(function (resolve, reject) {
         if (!file) {
           reject(new Error('No file selected'));

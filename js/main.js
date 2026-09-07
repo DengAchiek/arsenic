@@ -8,6 +8,7 @@
   var pages = root.pages;
   var Store = store.Store;
   var toastTimer = null;
+  var pendingCheckout = false;
 
   function get(id) {
     return document.getElementById(id);
@@ -159,6 +160,67 @@
     }, 2600);
   }
 
+  function backendAuthEnabled() {
+    return root.api && root.api.isEnabled();
+  }
+
+  function accountName(user) {
+    if (!user) return '';
+    return user.name || [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email || '';
+  }
+
+  function cacheAccount(user) {
+    if (!user) return;
+    Store.setProfile({
+      name: accountName(user),
+      email: user.email,
+      phone: user.phone || '',
+      company: user.company || ''
+    });
+  }
+
+  function setAuthMode(mode) {
+    mode = mode === 'register' ? 'register' : 'login';
+    var loginForm = get('login-form');
+    var registerForm = get('register-form');
+    var loginTab = get('auth-tab-login');
+    var registerTab = get('auth-tab-register');
+    if (loginForm) loginForm.style.display = mode === 'login' ? 'block' : 'none';
+    if (registerForm) registerForm.style.display = mode === 'register' ? 'block' : 'none';
+    if (loginTab) loginTab.classList.toggle('btn-outline', mode !== 'login');
+    if (registerTab) registerTab.classList.toggle('btn-outline', mode !== 'register');
+  }
+
+  function renderProfileState(mode) {
+    var display = get('profile-display');
+    var authPanel = get('auth-panel');
+    var fallbackForm = get('profile-form');
+    var user = backendAuthEnabled() ? root.api.getAuthUser() : Store.profile;
+
+    if (!display || !fallbackForm) return;
+
+    if (user) {
+      display.style.display = 'block';
+      if (authPanel) authPanel.style.display = 'none';
+      fallbackForm.style.display = 'none';
+      if (get('profile-name-display')) get('profile-name-display').textContent = accountName(user) || 'User';
+      if (get('profile-email-display')) get('profile-email-display').textContent = user.email || '';
+      if (get('profile-avatar')) get('profile-avatar').textContent = (accountName(user) || 'U').charAt(0).toUpperCase();
+      return;
+    }
+
+    display.style.display = 'none';
+    if (backendAuthEnabled()) {
+      if (authPanel) authPanel.style.display = 'block';
+      fallbackForm.style.display = 'none';
+      setAuthMode(mode || 'login');
+    } else {
+      if (authPanel) authPanel.style.display = 'none';
+      fallbackForm.style.display = 'block';
+      if (get('profile-login-btn')) get('profile-login-btn').textContent = 'Continue';
+    }
+  }
+
   function openQuickView(id) {
     var product = store.findProduct(id);
     var content = get('quickview-content');
@@ -220,26 +282,10 @@
     }).join('');
   }
 
-  function openProfile() {
+  function openProfile(mode) {
     var modal = get('profile-modal');
-    var display = get('profile-display');
-    var form = get('profile-form');
-    var profile = Store.profile;
-    if (!modal || !display || !form) return;
-
-    if (profile) {
-      display.style.display = 'block';
-      form.style.display = 'none';
-      var name = get('profile-name-display');
-      var email = get('profile-email-display');
-      var avatar = get('profile-avatar');
-      if (name) name.textContent = profile.name || 'User';
-      if (email) email.textContent = profile.email || '';
-      if (avatar) avatar.textContent = (profile.name || 'U').charAt(0).toUpperCase();
-    } else {
-      display.style.display = 'none';
-      form.style.display = 'block';
-    }
+    if (!modal) return;
+    renderProfileState(mode || 'login');
 
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -255,15 +301,157 @@
       showToast('Please fill in all fields');
       return;
     }
+    if (backendAuthEnabled() && root.api.isAuthenticated()) {
+      root.api.updateMe({ full_name: name }).then(function (user) {
+        cacheAccount(user);
+        renderProfileState();
+        showToast('Profile updated');
+      }).catch(function (error) {
+        showToast('Profile error: ' + error.message);
+      });
+      return;
+    }
+
     Store.setProfile({ name: name, email: email });
     closeProfile();
     showToast('Welcome, ' + name + '!');
   }
 
   function handleProfileLogout() {
+    if (backendAuthEnabled() && root.api.isAuthenticated()) {
+      root.api.logout().finally(function () {
+        Store.setProfile(null);
+        closeProfile();
+        showToast('Logged out');
+      });
+      return;
+    }
     Store.setProfile(null);
     closeProfile();
     showToast('Logged out');
+  }
+
+  function finishAuthentication(user, message) {
+    cacheAccount(user);
+    closeProfile();
+    showToast(message);
+    if (pendingCheckout) {
+      pendingCheckout = false;
+      setTimeout(startCheckout, 250);
+    }
+  }
+
+  function handleLoginSubmit(event) {
+    event.preventDefault();
+    if (!backendAuthEnabled()) return;
+    var email = get('login-email-input') ? get('login-email-input').value.trim() : '';
+    var password = get('login-password-input') ? get('login-password-input').value : '';
+    var remember = get('login-remember-input') ? get('login-remember-input').checked : true;
+    if (!email || !password) {
+      showToast('Enter your email and password');
+      return;
+    }
+    root.api.login({ email: email, password: password, remember: remember }).then(function (result) {
+      finishAuthentication(result.user, 'Signed in');
+    }).catch(function (error) {
+      showToast('Sign in error: ' + error.message);
+    });
+  }
+
+  function handleRegisterSubmit(event) {
+    event.preventDefault();
+    if (!backendAuthEnabled()) return;
+    var name = get('register-name-input') ? get('register-name-input').value.trim() : '';
+    var email = get('register-email-input') ? get('register-email-input').value.trim() : '';
+    var phone = get('register-phone-input') ? get('register-phone-input').value.trim() : '';
+    var password = get('register-password-input') ? get('register-password-input').value : '';
+    var consent = get('register-consent-input') ? get('register-consent-input').checked : false;
+    if (!name || !email || !password) {
+      showToast('Complete your account details');
+      return;
+    }
+    root.api.register({
+      full_name: name,
+      email: email,
+      phone: phone,
+      password: password,
+      marketing_consent: consent,
+      remember: true
+    }).then(function (result) {
+      finishAuthentication(result.user, 'Account created');
+    }).catch(function (error) {
+      showToast('Signup error: ' + error.message);
+    });
+  }
+
+  function startCheckout() {
+    var cart = store.readCart();
+
+    if (!cart.length) {
+      showToast('Your cart is empty');
+      return;
+    }
+
+    if (!root.api || !root.api.isEnabled()) {
+      showToast('Secure checkout needs backend API setup');
+      return;
+    }
+
+    if (!root.api.isAuthenticated()) {
+      pendingCheckout = true;
+      openProfile('login');
+      showToast('Sign in or create an account to checkout');
+      return;
+    }
+
+    showToast('Opening secure checkout...');
+    root.api.createCheckoutSession({
+      items: cart.map(function (item) {
+        return { id: item.id, qty: item.qty };
+      }),
+      success_url: window.location.origin + window.location.pathname.replace(/[^/]*$/, 'checkout-success.html'),
+      cancel_url: window.location.href
+    }).then(function (result) {
+      if (result && result.checkout_url) {
+        window.location.href = result.checkout_url;
+        return;
+      }
+      showToast('Checkout session was not returned');
+    }).catch(function (error) {
+      showToast('Checkout error: ' + error.message);
+    });
+  }
+
+  function submitSalesInquiry(form) {
+    if (!root.api || !root.api.isEnabled()) {
+      showToast('Sales email API is not configured yet');
+      return;
+    }
+
+    var name = get('sales-name') ? get('sales-name').value.trim() : '';
+    var email = get('sales-email') ? get('sales-email').value.trim() : '';
+    var message = get('sales-message') ? get('sales-message').value.trim() : '';
+
+    if (!name || !email || !message) {
+      showToast('Please complete the sales form');
+      return;
+    }
+
+    root.api.createInquiry({
+      source: 'contact',
+      name: name,
+      email: email,
+      subject: 'Website sales inquiry',
+      message: message,
+      metadata: {
+        page: window.location.pathname
+      }
+    }).then(function () {
+      form.reset();
+      showToast('Message sent to sales');
+    }).catch(function (error) {
+      showToast('Message error: ' + error.message);
+    });
   }
 
   function setupControls() {
@@ -305,22 +493,35 @@
     var profileClose = get('profile-close-btn');
     var profileOverlay = get('profile-overlay');
     var profileForm = get('profile-form');
+    var loginForm = get('login-form');
+    var registerForm = get('register-form');
     var profileLogout = get('profile-logout-btn');
     var profileEdit = get('profile-edit-btn');
-    if (profileButton) profileButton.addEventListener('click', openProfile);
+    if (profileButton) profileButton.addEventListener('click', function () { openProfile('login'); });
     if (profileClose) profileClose.addEventListener('click', closeProfile);
     if (profileOverlay) profileOverlay.addEventListener('click', closeProfile);
     if (profileForm) profileForm.addEventListener('submit', handleProfileSubmit);
+    if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
+    if (registerForm) registerForm.addEventListener('submit', handleRegisterSubmit);
+    document.querySelectorAll('[data-auth-mode]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        setAuthMode(button.getAttribute('data-auth-mode'));
+      });
+    });
     if (profileLogout) profileLogout.addEventListener('click', handleProfileLogout);
     if (profileEdit) {
       profileEdit.addEventListener('click', function () {
-        var profile = Store.profile || {};
+        var profile = backendAuthEnabled() ? root.api.getAuthUser() || {} : Store.profile || {};
         var display = get('profile-display');
         var form = get('profile-form');
+        var authPanel = get('auth-panel');
         if (display) display.style.display = 'none';
+        if (authPanel) authPanel.style.display = 'none';
         if (form) form.style.display = 'block';
-        if (get('profile-name-input')) get('profile-name-input').value = profile.name || '';
+        if (get('profile-name-input')) get('profile-name-input').value = accountName(profile) || '';
         if (get('profile-email-input')) get('profile-email-input').value = profile.email || '';
+        if (get('profile-email-input')) get('profile-email-input').disabled = backendAuthEnabled();
+        if (get('profile-login-btn')) get('profile-login-btn').textContent = backendAuthEnabled() ? 'Save Profile' : 'Continue';
       });
     }
 
@@ -371,8 +572,27 @@
     if (newsletter) {
       newsletter.addEventListener('submit', function (event) {
         event.preventDefault();
+        var email = get('newsletter-email') ? get('newsletter-email').value.trim() : '';
+        if (root.api && root.api.isEnabled() && email) {
+          root.api.createInquiry({
+            source: 'contact',
+            name: 'Newsletter subscriber',
+            email: email,
+            subject: 'Newsletter subscription',
+            message: 'Please send product updates, energy tips, and new arrivals.',
+            metadata: { form: 'newsletter' }
+          }).catch(function () {});
+        }
         newsletter.reset();
         showToast('Thanks for subscribing');
+      });
+    }
+
+    var salesInquiry = get('sales-inquiry-form');
+    if (salesInquiry) {
+      salesInquiry.addEventListener('submit', function (event) {
+        event.preventDefault();
+        submitSalesInquiry(salesInquiry);
       });
     }
 
@@ -451,7 +671,7 @@
       }
 
       if (event.target.closest('[data-checkout]')) {
-        showToast('Checkout coming soon!');
+        startCheckout();
       }
     });
   }
@@ -490,6 +710,14 @@
     pages.setupTestimonials();
     updateCartUI();
     components.syncWishlistButtons();
+    store.syncRemoteCatalog().then(function (changed) {
+      if (changed) pages.refreshCatalogViews();
+    });
+    if (backendAuthEnabled() && root.api.isAuthenticated()) {
+      root.api.me().then(cacheAccount).catch(function () {
+        Store.setProfile(null);
+      });
+    }
   }
 
   root.ui = {
