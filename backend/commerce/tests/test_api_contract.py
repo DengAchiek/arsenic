@@ -1,4 +1,6 @@
 from decimal import Decimal
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -58,6 +60,24 @@ class CommerceAPITests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response["Location"], "/api/")
+
+    def test_packaged_frontend_mode_serves_static_storefront(self):
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "index.html").write_text("<h1>Storefront</h1>", encoding="utf-8")
+            (root / "shop.html").write_text("<h1>Shop</h1>", encoding="utf-8")
+
+            with self.settings(SERVE_FRONTEND=True, FRONTEND_BUILD_DIR=root):
+                home = self.client.get("/")
+                shop = self.client.get("/shop.html")
+                api = self.client.get("/api/")
+
+                self.assertEqual(home.status_code, 200)
+                self.assertIn(b"Storefront", b"".join(home.streaming_content))
+                self.assertEqual(shop.status_code, 200)
+                self.assertIn(b"Shop", b"".join(shop.streaming_content))
+                self.assertEqual(api.status_code, 200)
+                self.assertIn("products", api.json())
 
     def test_health_endpoint_returns_ok(self):
         response = self.client.get("/healthz/")

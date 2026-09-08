@@ -132,6 +132,8 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+SERVE_FRONTEND = env_bool("DJANGO_SERVE_FRONTEND", False)
+FRONTEND_BUILD_DIR = Path(os.getenv("DJANGO_FRONTEND_BUILD_DIR", REPO_ROOT / "frontend"))
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -171,8 +173,9 @@ SALES_TEAM_EMAILS = env_list("SALES_TEAM_EMAILS", "sales@example.com")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 ALLOW_MOCK_CHECKOUT = env_bool("DJANGO_ALLOW_MOCK_CHECKOUT", DEBUG and not STRIPE_SECRET_KEY)
-FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:8000").rstrip("/")
-BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8001").rstrip("/")
+RENDER_BASE_URL = "https://%s" % RENDER_EXTERNAL_HOSTNAME if RENDER_EXTERNAL_HOSTNAME else ""
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", RENDER_BASE_URL or "http://localhost:8000").rstrip("/")
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", RENDER_BASE_URL or "http://localhost:8001").rstrip("/")
 ORDER_SUCCESS_PATH = os.getenv("ORDER_SUCCESS_PATH", "/checkout-success.html")
 ORDER_CANCEL_PATH = os.getenv("ORDER_CANCEL_PATH", "/shop.html")
 STRIPE_ALLOWED_COUNTRIES = env_list("STRIPE_ALLOWED_COUNTRIES", "US,KE,UG,TZ,RW,ET,NG,GH,ZA")

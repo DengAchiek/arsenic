@@ -48,7 +48,9 @@ The repo includes a root `Dockerfile` now so that setup can still build the Djan
 - a Python Web Service for the Django API
 - a PostgreSQL database
 
-If you keep a manually created Docker service, it should represent only the API. Create the frontend separately as a Render Static Site with `./scripts/render-build-frontend.sh` as the build command and `dist` as the publish directory.
+If you keep a manually created Docker service, the root `Dockerfile` now packages the frontend as well, so that service can serve the storefront at `/` and the Django API at `/api/`. This is a compatibility fallback for manually created Render Docker services.
+
+For the non-monolithic deployment, keep using the Blueprint so the frontend and backend remain independently deployed.
 
 ## If You See `Api Root` In The Browser
 
@@ -75,6 +77,14 @@ FRONTEND_BASE_URL=https://<static-site-hostname>
 ```
 
 When `FRONTEND_BASE_URL` points to a different production host, the API service root redirects visitors to the storefront. The `/api/` path continues to show the API router intentionally.
+
+If you created only one Docker service named `arsenic-web`, rebuild after commit `Serve storefront from Render Docker fallback` or later. That Docker fallback serves:
+
+```text
+https://arsenic-web.onrender.com/        storefront
+https://arsenic-web.onrender.com/api/    Django REST API
+https://arsenic-web.onrender.com/admin/  Django Admin
+```
 
 ## Required Secret Values
 
