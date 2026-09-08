@@ -50,6 +50,32 @@ The repo includes a root `Dockerfile` now so that setup can still build the Djan
 
 If you keep a manually created Docker service, it should represent only the API. Create the frontend separately as a Render Static Site with `./scripts/render-build-frontend.sh` as the build command and `dist` as the publish directory.
 
+## If You See `Api Root` In The Browser
+
+The `Api Root` screen is the Django REST API, not the public storefront. It is expected at:
+
+```text
+https://<api-service-hostname>/api/
+```
+
+The storefront must be opened from the separate Static Site service URL, for example:
+
+```text
+https://<static-site-hostname>/
+```
+
+If the URL is named `arsenic-web.onrender.com` but shows `Api Root`, that Render service is running the backend API. Create or open the separate static frontend service, then set:
+
+```text
+arsenic-energies-web:
+ARSENIC_API_BASE_URL=https://<api-service-hostname>/api
+
+arsenic-energies-api:
+FRONTEND_BASE_URL=https://<static-site-hostname>
+```
+
+When `FRONTEND_BASE_URL` points to a different production host, the API service root redirects visitors to the storefront. The `/api/` path continues to show the API router intentionally.
+
 ## Required Secret Values
 
 Render will prompt for env vars marked `sync: false` in `render.yaml`.

@@ -33,8 +33,28 @@ class CommerceAPITests(TestCase):
             inventory_quantity=10,
         )
 
-    def test_backend_root_redirects_to_api_root(self):
+    def test_backend_root_redirects_to_api_root_for_local_frontend(self):
         response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/api/")
+
+    @override_settings(
+        FRONTEND_BASE_URL="https://arsenic-energies-web.onrender.com",
+        ALLOWED_HOSTS=["arsenic-energies-api.onrender.com"],
+    )
+    def test_backend_root_redirects_to_configured_frontend_when_host_differs(self):
+        response = self.client.get("/", HTTP_HOST="arsenic-energies-api.onrender.com")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "https://arsenic-energies-web.onrender.com")
+
+    @override_settings(
+        FRONTEND_BASE_URL="https://arsenic-web.onrender.com",
+        ALLOWED_HOSTS=["arsenic-web.onrender.com"],
+    )
+    def test_backend_root_avoids_redirect_loop_when_frontend_matches_host(self):
+        response = self.client.get("/", HTTP_HOST="arsenic-web.onrender.com")
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response["Location"], "/api/")
