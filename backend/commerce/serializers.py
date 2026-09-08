@@ -274,6 +274,9 @@ class OrderSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source="public_id", read_only=True)
     customer = CustomerSerializer(read_only=True)
     items = OrderItemSerializer(many=True, read_only=True)
+    status_label = serializers.CharField(source="get_status_display", read_only=True)
+    payment_status_label = serializers.CharField(source="get_payment_status_display", read_only=True)
+    tracking_steps = serializers.SerializerMethodField()
     createdAt = serializers.DateTimeField(source="created_at", read_only=True)
     updatedAt = serializers.DateTimeField(source="updated_at", read_only=True)
 
@@ -284,7 +287,10 @@ class OrderSerializer(serializers.ModelSerializer):
             "customer",
             "items",
             "status",
+            "status_label",
             "payment_status",
+            "payment_status_label",
+            "tracking_steps",
             "currency",
             "subtotal",
             "tax_total",
@@ -299,6 +305,60 @@ class OrderSerializer(serializers.ModelSerializer):
             "updatedAt",
         ]
         read_only_fields = ["stripe_checkout_session_id", "stripe_payment_intent_id", "subtotal", "total"]
+
+    def get_tracking_steps(self, obj):
+        def stamp(value):
+            return value.isoformat() if value else None
+
+        current_index = {
+            Order.STATUS_PENDING: 0,
+            Order.STATUS_PROCESSING: 2,
+            Order.STATUS_FULFILLED: 3,
+            Order.STATUS_CANCELLED: 1,
+            Order.STATUS_REFUNDED: 1,
+        }.get(obj.status, 0)
+        payment_complete = obj.payment_status == Order.PAYMENT_PAID
+        steps = [
+            {
+                "key": "received",
+                "label": "Order received",
+                "complete": True,
+                "active": obj.status == Order.STATUS_PENDING and not payment_complete,
+                "timestamp": stamp(obj.created_at),
+            },
+            {
+                "key": "payment",
+                "label": "Payment confirmed" if payment_complete else "Payment pending",
+                "complete": payment_complete,
+                "active": obj.status == Order.STATUS_PENDING and payment_complete,
+                "timestamp": stamp(obj.updated_at if payment_complete else None),
+            },
+            {
+                "key": "processing",
+                "label": "Preparing delivery",
+                "complete": current_index >= 2 and obj.status != Order.STATUS_CANCELLED,
+                "active": obj.status == Order.STATUS_PROCESSING,
+                "timestamp": stamp(obj.updated_at if current_index >= 2 else None),
+            },
+            {
+                "key": "fulfilled",
+                "label": "Delivered / fulfilled",
+                "complete": obj.status == Order.STATUS_FULFILLED,
+                "active": obj.status == Order.STATUS_FULFILLED,
+                "timestamp": stamp(obj.updated_at if obj.status == Order.STATUS_FULFILLED else None),
+            },
+        ]
+        if obj.status in {Order.STATUS_CANCELLED, Order.STATUS_REFUNDED}:
+            steps.append(
+                {
+                    "key": obj.status,
+                    "label": obj.get_status_display(),
+                    "complete": True,
+                    "active": True,
+                    "timestamp": stamp(obj.updated_at),
+                }
+            )
+        return steps
 
 
 class CheckoutItemSerializer(serializers.Serializer):

@@ -335,6 +335,14 @@
     cacheAccount(user);
     closeProfile();
     showToast(message);
+    if (document.getElementById('checkout-success-root')) {
+      pages.renderCheckoutSuccess();
+      return;
+    }
+    if (document.getElementById('orders-root') && !pendingCheckout) {
+      window.location.reload();
+      return;
+    }
     if (pendingCheckout) {
       pendingCheckout = false;
       setTimeout(startCheckout, 250);
@@ -611,6 +619,20 @@
     });
 
     document.addEventListener('click', function (event) {
+      var accountButton = event.target.closest('[data-open-account]');
+      if (accountButton) {
+        event.preventDefault();
+        openProfile(accountButton.getAttribute('data-open-account') || 'login');
+        return;
+      }
+
+      var orderButton = event.target.closest('[data-order-detail]');
+      if (orderButton) {
+        event.preventDefault();
+        pages.showOrderDetail(orderButton.getAttribute('data-order-detail'));
+        return;
+      }
+
       var imageButton = event.target.closest('[data-product-image]');
       if (imageButton) {
         var mainImage = get('main-img');
@@ -703,6 +725,8 @@
     pages.renderHome();
     pages.renderShop();
     pages.renderProductPage();
+    pages.renderOrdersPage();
+    pages.renderCheckoutSuccess();
     setupControls();
     pages.setupCalculator();
     pages.setupReveal();

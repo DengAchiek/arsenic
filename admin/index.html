@@ -6,21 +6,52 @@
 <title>Admin — Arsenic Energies</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="../js/tailwind-config.js?v=20260907-auth"></script>
+<script src="../js/tailwind-config.js?v=20260908-admin-login"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="../css/styles.css?v=20260907-flow">
+<link rel="stylesheet" href="../css/styles.css?v=20260908-admin-login">
 <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
 
-<div class="max-w-[1400px] mx-auto px-6 py-8">
+<section id="admin-auth" class="min-h-screen flex items-center justify-center px-6 py-12">
+  <div class="admin-card w-full max-w-md">
+    <p class="nameplate mb-5"><span class="dot"></span> ADMIN ACCESS</p>
+    <h1 class="font-display text-3xl">Admin login</h1>
+    <p class="text-sm mt-3" style="color:var(--muted)">Sign in with a staff account to manage the store.</p>
+
+    <form id="admin-login-form" class="space-y-4 mt-8">
+      <div>
+        <label for="admin-email-input" class="form-label">Email</label>
+        <input id="admin-email-input" type="email" autocomplete="email" required class="form-input" placeholder="admin@example.com">
+      </div>
+      <div>
+        <label for="admin-password-input" class="form-label">Password</label>
+        <input id="admin-password-input" type="password" autocomplete="current-password" required class="form-input" placeholder="Enter password">
+      </div>
+      <label class="flex items-center gap-2 text-sm" style="color:var(--muted)">
+        <input id="admin-remember-input" type="checkbox" checked>
+        Remember me
+      </label>
+      <p id="admin-login-error" class="text-sm" style="color:#f87171;display:none"></p>
+      <button id="admin-login-submit" type="submit" class="btn-admin w-full">Sign in</button>
+    </form>
+
+    <a href="../index.html" class="inline-block mt-6 text-sm" style="color:var(--muted)">Back to site</a>
+  </div>
+</section>
+
+<div id="admin-app" class="max-w-[1400px] mx-auto px-6 py-8" style="display:none">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8">
     <div>
-      <h1 class="font-display text-2xl">⚡ Admin Dashboard</h1>
+      <h1 class="font-display text-2xl">Admin Dashboard</h1>
       <p class="text-sm" style="color:var(--muted)">Manage products, categories, and orders</p>
     </div>
-    <a href="../index.html" class="text-sm" style="color:var(--muted)">← Back to site</a>
+    <div class="flex flex-wrap items-center gap-3">
+      <div id="admin-current-user" class="text-sm text-right" style="color:var(--muted)"></div>
+      <button id="admin-logout-btn" type="button" class="btn-admin btn-admin-outline">Logout</button>
+      <a href="../index.html" class="text-sm" style="color:var(--muted)">Back to site</a>
+    </div>
   </div>
 
   <!-- Stats -->
@@ -241,13 +272,13 @@
   <span>Added</span>
 </div>
 
-<script src="../js/data.js?v=20260907-auth"></script>
-<script src="../js/backend-config.js?v=20260907-auth"></script>
-<script src="../js/backend-api.js?v=20260907-auth"></script>
-<script src="js/api.js?v=20260907-auth"></script>
-<script src="js/store.js?v=20260907-auth"></script>
-<script src="js/components.js?v=20260907-auth"></script>
-<script src="js/app.js?v=20260907-auth"></script>
+<script src="../js/data.js?v=20260908-admin-login"></script>
+<script src="../js/backend-config.js?v=20260908-admin-login"></script>
+<script src="../js/backend-api.js?v=20260908-admin-login"></script>
+<script src="js/api.js?v=20260908-admin-login"></script>
+<script src="js/store.js?v=20260908-admin-login"></script>
+<script src="js/components.js?v=20260908-admin-login"></script>
+<script src="js/app.js?v=20260908-admin-login"></script>
 
 </body>
 </html>

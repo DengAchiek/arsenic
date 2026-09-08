@@ -1,0 +1,93 @@
+databases:
+  - name: arsenic-postgres
+    databaseName: arsenic_energies
+    user: arsenic_user
+    plan: free
+
+services:
+  - type: web
+    name: arsenic-energies-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: ./render-build.sh
+    preDeployCommand: python manage.py migrate
+    initialDeployHook: python manage.py seed_catalog
+    startCommand: gunicorn arsenic_backend.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /healthz/
+    autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - backend/**
+        - render.yaml
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: arsenic-postgres
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: arsenic-energies-api.onrender.com,api.arsenicenergies.com
+      - key: DJANGO_CORS_ALLOWED_ORIGINS
+        value: https://arsenic-energies-web.onrender.com,https://arsenicenergies.com,https://www.arsenicenergies.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://arsenic-energies-web.onrender.com,https://arsenicenergies.com,https://www.arsenicenergies.com,https://arsenic-energies-api.onrender.com,https://api.arsenicenergies.com
+      - key: DJANGO_SECURE_SSL_REDIRECT
+        value: "True"
+      - key: DJANGO_ALLOW_MOCK_CHECKOUT
+        value: "False"
+      - key: FRONTEND_BASE_URL
+        value: https://arsenic-energies-web.onrender.com
+      - key: BACKEND_BASE_URL
+        value: https://arsenic-energies-api.onrender.com
+      - key: ORDER_SUCCESS_PATH
+        value: /checkout-success.html
+      - key: ORDER_CANCEL_PATH
+        value: /shop.html
+      - key: STRIPE_ALLOWED_COUNTRIES
+        value: US,KE,UG,TZ,RW,ET,NG,GH,ZA
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: SALES_TEAM_EMAILS
+        sync: false
+      - key: STORAGE_BACKEND
+        value: local
+
+  - type: web
+    name: arsenic-energies-web
+    runtime: static
+    plan: free
+    buildCommand: ./scripts/render-build-frontend.sh
+    staticPublishPath: dist
+    autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - "*.html"
+        - admin/**
+        - assets/**
+        - css/**
+        - js/**
+        - scripts/render-build-frontend.sh
+        - render.yaml
+    envVars:
+      - key: ARSENIC_API_BASE_URL
+        value: https://arsenic-energies-api.onrender.com/api

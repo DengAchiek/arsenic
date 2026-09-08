@@ -7,7 +7,8 @@ Django + PostgreSQL API for the storefront catalog, admin product updates, Strip
 - Product and category CRUD through Django Admin and `/api/products/`, `/api/categories/`
 - Public catalog endpoint at `/api/catalog/` using the same field names as the current static frontend
 - Customer account registration, login, logout, and current-account endpoints
-- Order records with customer snapshots, line items, totals, payment status, and admin status updates
+- Customer order tracking through `/api/orders/` and `/api/orders/<order_id>/`
+- Order records with customer snapshots, line items, totals, payment status, tracking steps, and admin status updates
 - Authenticated Stripe Checkout session creation at `/api/checkout/session/`
 - Verified Stripe webhook endpoint at `/api/payments/stripe/webhook/`
 - Sales inquiry endpoint at `/api/inquiries/` with email notifications to sales
@@ -32,6 +33,12 @@ python manage.py runserver 8001
 
 For quick local testing without PostgreSQL, leave `DATABASE_URL` unset and Django will use SQLite. Use PostgreSQL before production.
 
+## Render Deployment
+
+The repository includes a root `render.yaml` Blueprint. It deploys this backend as `arsenic-energies-api`, the static storefront as `arsenic-energies-web`, and PostgreSQL as `arsenic-postgres`.
+
+The backend service uses `rootDir: backend` and a backend-only `buildFilter`, so frontend-only changes do not redeploy the API service. See `../docs/render-deployment.md` for the full deployment checklist.
+
 ## Connect The Static Frontend
 
 Edit `js/backend-config.js`:
@@ -44,6 +51,8 @@ window.ARSENIC_BACKEND_CONFIG = {
 ```
 
 For the static admin dashboard, set `authToken` to a Django REST Framework token for a staff user. For production, Django Admin at `/admin/` is safer for staff operations because it uses Django sessions, CSRF protection, and staff permissions.
+
+The static admin dashboard at `admin/index.html` also includes a staff login screen when `apiBaseUrl` is configured. Use a Django user with `is_staff=True`; non-staff accounts can sign in to the storefront but are blocked from the admin dashboard.
 
 ## Authentication
 
@@ -66,6 +75,17 @@ Authorization: Token <token>
 ```
 
 When Checkout is created, the backend uses `request.user` and the linked customer profile. It does not trust browser-submitted customer identity or prices.
+
+## Customer Orders
+
+Authenticated customers can review and track their own orders:
+
+```text
+GET /api/orders/
+GET /api/orders/<order_id>/
+```
+
+The response includes line items, product snapshots, totals, payment status labels, shipping/billing details when present, notes, and `tracking_steps` for the storefront order tracking page. Non-staff users are scoped to their linked customer profile; staff users can view and update orders for operations.
 
 ## Stripe
 
@@ -90,6 +110,8 @@ Subscribe to:
 - `checkout.session.expired`
 
 The checkout endpoint requires authentication and always builds line items from database product prices, not browser-submitted prices.
+
+For local demos without Stripe credentials, run with `DJANGO_DEBUG=True` and leave `STRIPE_SECRET_KEY` blank. The backend enables a mock checkout redirect only in that local/debug case. Keep `DJANGO_ALLOW_MOCK_CHECKOUT=False` in production.
 
 ## Email: SendGrid Or AWS SES
 

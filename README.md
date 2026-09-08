@@ -7,6 +7,7 @@ Static storefront and local admin dashboard for a solar energy product catalog.
 - `index.html` - Home page with hero, category grid, featured products, solutions, calculator, testimonials, and newsletter form.
 - `shop.html` - Product catalog with category, price, availability, rating, text search, and sorting filters.
 - `product.html` - Product detail page with gallery swap, specifications, quantity controls, cart actions, wishlist, reviews, and related products.
+- `orders.html` - Authenticated customer order tracking with order status, payment status, products, totals, and details.
 - `about.html`, `faq.html`, `privacy.html`, `terms.html` - Static content pages that reuse the shared site shell.
 
 ## Admin
@@ -15,7 +16,7 @@ Static storefront and local admin dashboard for a solar energy product catalog.
 - `admin/js/api.js` - LocalStorage-backed catalog API with product/category CRUD and image upload as data URLs.
 - `admin/js/store.js` - Admin state container that loads products, categories, orders, and profile data.
 - `admin/js/components.js` - Admin formatting helpers.
-- `admin/js/app.js` - Admin UI rendering, modal handling, form saving, tabs, and delete/edit actions.
+- `admin/js/app.js` - Staff login gate, admin UI rendering, modal handling, form saving, tabs, and delete/edit actions.
 - `admin/css/admin.css` - Admin-only dashboard styles.
 
 ## Shared Public JavaScript
@@ -45,7 +46,10 @@ The project uses browser `localStorage`:
 
 - `backend/` - Django + PostgreSQL commerce API for product/category updates, orders, Stripe Checkout, sales inquiries, email notifications, staff admin, audit logs, and Cloudflare-aware security settings.
 - `js/backend-config.js` and `js/backend-api.js` - Optional frontend bridge. Leave `apiBaseUrl` blank for static demo mode, or set it to a deployed Django API such as `https://api.arsenicenergies.com/api`.
+- `admin/index.html` - Staff-only dashboard when the backend API is enabled. Sign in with a Django user that has `is_staff=True`.
 - Customer account login/register is required before secure checkout when the backend API is enabled.
-- `checkout-success.html` - Stripe Checkout success return page.
+- `checkout-success.html` - Stripe Checkout success return page with order review.
+- `orders.html` - Customer order tracking page powered by the authenticated `/api/orders/` endpoints.
+- `render.yaml` - Render Blueprint that deploys the static frontend, Django API, and PostgreSQL database as separate services with deploy filters.
 
-See `backend/README.md` for setup, deployment, Stripe webhook, SendGrid/AWS SES, and Cloudflare configuration.
+See `backend/README.md` for backend setup and `docs/render-deployment.md` for Render deployment, Stripe webhook, SendGrid/AWS SES, and Cloudflare/R2 configuration.

@@ -33,6 +33,18 @@ class CommerceAPITests(TestCase):
             inventory_quantity=10,
         )
 
+    def test_backend_root_redirects_to_api_root(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/api/")
+
+    def test_health_endpoint_returns_ok(self):
+        response = self.client.get("/healthz/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
+
     def test_catalog_matches_frontend_contract(self):
         response = self.client.get("/api/catalog/")
 
@@ -90,6 +102,23 @@ class CommerceAPITests(TestCase):
         self.assertEqual(me.json()["email"], "grace@example.com")
         self.assertEqual(me.json()["name"], "Grace W")
 
+    def test_staff_login_exposes_admin_flag(self):
+        get_user_model().objects.create_user(
+            username="admin@example.com",
+            email="admin@example.com",
+            password="Admin-pass-2026",
+            is_staff=True,
+        )
+
+        response = self.client.post(
+            "/api/auth/login/",
+            {"email": "admin@example.com", "password": "Admin-pass-2026"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["user"]["is_staff"])
+
     def test_checkout_requires_authenticated_account(self):
         response = self.client.post(
             "/api/checkout/session/",
@@ -98,6 +127,27 @@ class CommerceAPITests(TestCase):
         )
 
         self.assertIn(response.status_code, (401, 403))
+
+    @override_settings(ALLOW_MOCK_CHECKOUT=True, STRIPE_SECRET_KEY="")
+    def test_authenticated_checkout_can_use_local_mock_without_stripe_key(self):
+        user = get_user_model().objects.create_user(
+            username="mock@example.com",
+            email="mock@example.com",
+            password="S0lar-pass-2026",
+        )
+        self.client.force_authenticate(user=user)
+
+        response = self.client.post(
+            "/api/checkout/session/",
+            {
+                "items": [{"id": "bat-10k", "qty": 1}],
+                "success_url": "http://127.0.0.1:8000/checkout-success.html",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("mock_checkout=1", response.json()["checkout_url"])
 
     def test_inquiry_creates_customer_and_notifies_sales(self):
         with override_settings(
@@ -157,6 +207,50 @@ class CommerceAPITests(TestCase):
         payload = response.json()
         self.assertEqual(len(payload), 1)
         self.assertEqual(payload[0]["id"], str(order_one.public_id))
+
+    def test_customer_can_retrieve_order_tracking_and_details(self):
+        owner = get_user_model().objects.create_user(
+            username="track@example.com",
+            email="track@example.com",
+            password="S0lar-pass-2026",
+        )
+        other = get_user_model().objects.create_user(
+            username="other@example.com",
+            email="other@example.com",
+            password="S0lar-pass-2026",
+        )
+        order = create_pending_order(
+            {
+                "items": [{"id": "bat-10k", "qty": 1}],
+                "shipping_address": {"city": "Nairobi", "line1": "Solar House"},
+                "notes": "Call before delivery.",
+            },
+            user=owner,
+        )
+        order.mark_paid(payment_intent_id="pi_test")
+        owner_token = Token.objects.create(user=owner)
+        other_token = Token.objects.create(user=other)
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token %s" % owner_token.key)
+        response = self.client.get("/api/orders/%s/" % order.public_id)
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["id"], str(order.public_id))
+        self.assertEqual(payload["status"], "processing")
+        self.assertEqual(payload["status_label"], "Processing")
+        self.assertEqual(payload["payment_status"], "paid")
+        self.assertEqual(payload["payment_status_label"], "Paid")
+        self.assertEqual(payload["items"][0]["name"], "Lithium Battery 10kWh")
+        self.assertEqual(payload["items"][0]["product_snapshot"]["img"], "assets/images/products/lifepo4-lithium-battery.png")
+        self.assertEqual(payload["shipping_address"]["city"], "Nairobi")
+        self.assertEqual(payload["notes"], "Call before delivery.")
+        self.assertEqual([step["key"] for step in payload["tracking_steps"]], ["received", "payment", "processing", "fulfilled"])
+        self.assertTrue(payload["tracking_steps"][1]["complete"])
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token %s" % other_token.key)
+        forbidden = self.client.get("/api/orders/%s/" % order.public_id)
+        self.assertEqual(forbidden.status_code, 404)
 
     def test_out_of_stock_product_cannot_be_ordered(self):
         self.product.stock_status = Product.STOCK_OUT

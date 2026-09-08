@@ -352,6 +352,279 @@
     };
   }
 
+  function orderDate(value) {
+    if (!value) return '';
+    var date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  function statusLabel(order) {
+    return order.status_label || String(order.status || 'pending').replace(/_/g, ' ');
+  }
+
+  function paymentLabel(order) {
+    return order.payment_status_label || String(order.payment_status || 'pending').replace(/_/g, ' ');
+  }
+
+  function detailKeyLabel(key) {
+    return String(key || '')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, function (letter) {
+        return letter.toUpperCase();
+      });
+  }
+
+  function detailValue(value) {
+    if (value == null || value === '') return '';
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
+  }
+
+  function orderExtraDetailHTML(title, value) {
+    if (!value) return '';
+    if (typeof value === 'string') {
+      return value.trim() ? '<div><p class="font-display mb-1">' + utils.escapeHTML(title) + '</p><p style="color:var(--muted-2)">' + utils.escapeHTML(value) + '</p></div>' : '';
+    }
+
+    var rows = Object.keys(value).map(function (key) {
+      var rowValue = detailValue(value[key]);
+      if (!rowValue) return '';
+      return [
+        '<div class="flex justify-between gap-4">',
+        '<span style="color:var(--muted-2)">', utils.escapeHTML(detailKeyLabel(key)), '</span>',
+        '<span class="text-right">', utils.escapeHTML(rowValue), '</span>',
+        '</div>'
+      ].join('');
+    }).filter(Boolean);
+
+    if (!rows.length) return '';
+    return [
+      '<div>',
+      '<p class="font-display mb-2">', utils.escapeHTML(title), '</p>',
+      '<div class="space-y-1">', rows.join(''), '</div>',
+      '</div>'
+    ].join('');
+  }
+
+  function orderItemHTML(item) {
+    var snapshot = item.product_snapshot || {};
+    var image = snapshot.img || '';
+    return [
+      '<div class="flex gap-4 py-4 border-b last:border-b-0" style="border-color:var(--line)">',
+      image ? '<img src="' + utils.escapeAttr(image) + '" alt="' + utils.escapeAttr(item.name) + '" class="w-16 h-16 object-cover rounded-md flex-shrink-0">' : '',
+      '<div class="flex-1 min-w-0">',
+      '<p class="font-display text-sm">', utils.escapeHTML(item.name || item.id), '</p>',
+      '<p class="text-xs mt-1" style="color:var(--muted-2)">SKU ', utils.escapeHTML(item.id), ' · Qty ', utils.escapeHTML(item.quantity), '</p>',
+      '<p class="text-xs mt-1" style="color:var(--muted)">Unit ', utils.money(item.unit_price), '</p>',
+      '</div>',
+      '<p class="price-now text-sm whitespace-nowrap">', utils.money(item.total), '</p>',
+      '</div>'
+    ].join('');
+  }
+
+  function orderTimelineHTML(order) {
+    var steps = order.tracking_steps || [];
+    if (!steps.length) return '';
+    return [
+      '<div class="mt-6 space-y-3">',
+      steps.map(function (step) {
+        var color = step.complete ? 'var(--primary)' : step.active ? 'var(--secondary)' : 'var(--line)';
+        return [
+          '<div class="flex gap-3">',
+          '<span class="mt-1 w-3 h-3 rounded-full flex-shrink-0" style="background:', color, '"></span>',
+          '<div>',
+          '<p class="text-sm font-medium">', utils.escapeHTML(step.label), '</p>',
+          step.timestamp ? '<p class="text-xs mt-0.5" style="color:var(--muted-2)">' + utils.escapeHTML(orderDate(step.timestamp)) + '</p>' : '',
+          '</div>',
+          '</div>'
+        ].join('');
+      }).join(''),
+      '</div>'
+    ].join('');
+  }
+
+  function orderDetailHTML(order) {
+    if (!order) {
+      return '<div class="p-8 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface)"><p style="color:var(--muted)">Select an order to review its details.</p></div>';
+    }
+
+    var customer = order.customer || {};
+    var extraDetails = [
+      orderExtraDetailHTML('Shipping address', order.shipping_address),
+      orderExtraDetailHTML('Billing address', order.billing_address),
+      orderExtraDetailHTML('Order notes', order.notes)
+    ].filter(Boolean).join('<div class="h-px" style="background:var(--line)"></div>');
+    return [
+      '<article class="rounded-[var(--radius-md)] border overflow-hidden" style="border-color:var(--line);background:var(--surface)">',
+      '<div class="p-6 border-b" style="border-color:var(--line)">',
+      '<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">',
+      '<div>',
+      '<p class="text-xs uppercase tracking-wide" style="color:var(--muted-2)">Order</p>',
+      '<h2 class="font-display text-2xl mt-1">#', utils.escapeHTML(String(order.id || '').slice(0, 8).toUpperCase()), '</h2>',
+      '<p class="text-xs mt-2" style="color:var(--muted-2)">Placed ', utils.escapeHTML(orderDate(order.createdAt)), '</p>',
+      '</div>',
+      '<div class="flex flex-wrap gap-2">',
+      '<span class="status-badge" style="background:rgba(245,184,46,0.15);color:var(--primary)">', utils.escapeHTML(statusLabel(order)), '</span>',
+      '<span class="status-badge" style="background:rgba(34,197,94,0.14);color:var(--green)">', utils.escapeHTML(paymentLabel(order)), '</span>',
+      '</div>',
+      '</div>',
+      orderTimelineHTML(order),
+      '</div>',
+      '<div class="p-6 grid lg:grid-cols-[1fr_260px] gap-8">',
+      '<div>',
+      '<h3 class="font-display text-lg mb-2">Order items</h3>',
+      '<div>', (order.items || []).map(orderItemHTML).join(''), '</div>',
+      '</div>',
+      '<aside>',
+      '<h3 class="font-display text-lg mb-3">Summary</h3>',
+      '<div class="space-y-2 text-sm">',
+      '<div class="flex justify-between"><span style="color:var(--muted)">Subtotal</span><span>', utils.money(order.subtotal), '</span></div>',
+      '<div class="flex justify-between"><span style="color:var(--muted)">Shipping</span><span>', utils.money(order.shipping_total), '</span></div>',
+      '<div class="flex justify-between"><span style="color:var(--muted)">Tax</span><span>', utils.money(order.tax_total), '</span></div>',
+      '<div class="flex justify-between pt-3 mt-3 border-t font-display" style="border-color:var(--line)"><span>Total</span><span class="price-now">', utils.money(order.total), '</span></div>',
+      '</div>',
+      '<div class="mt-6 pt-5 border-t text-sm" style="border-color:var(--line)">',
+      '<p class="font-display mb-2">Customer</p>',
+      '<p>', utils.escapeHTML(customer.full_name || customer.email || ''), '</p>',
+      '<p style="color:var(--muted-2)">', utils.escapeHTML(customer.email || ''), '</p>',
+      customer.phone ? '<p style="color:var(--muted-2)">' + utils.escapeHTML(customer.phone) + '</p>' : '',
+      '</div>',
+      extraDetails ? '<div class="mt-6 pt-5 border-t text-sm space-y-5" style="border-color:var(--line)">' + extraDetails + '</div>' : '',
+      '</aside>',
+      '</div>',
+      '</article>'
+    ].join('');
+  }
+
+  function renderOrdersList(orders, selectedId) {
+    if (!orders.length) {
+      return [
+        '<div class="p-8 rounded-[var(--radius-md)] border text-center" style="border-color:var(--line);background:var(--surface)">',
+        '<p class="font-display text-xl">No orders yet</p>',
+        '<p class="text-sm mt-2" style="color:var(--muted)">Your solar and energy orders will appear here after checkout.</p>',
+        '<a href="shop.html" class="btn btn-primary mt-6">Shop products</a>',
+        '</div>'
+      ].join('');
+    }
+
+    return orders.map(function (order) {
+      var active = order.id === selectedId;
+      return [
+        '<button type="button" data-order-detail="', utils.escapeAttr(order.id), '" class="w-full text-left p-4 rounded-[var(--radius-md)] border transition-colors" style="border-color:', active ? 'var(--primary)' : 'var(--line)', ';background:', active ? 'rgba(245,184,46,0.08)' : 'var(--surface)', '">',
+        '<div class="flex items-start justify-between gap-3">',
+        '<div>',
+        '<p class="font-display">#', utils.escapeHTML(String(order.id || '').slice(0, 8).toUpperCase()), '</p>',
+        '<p class="text-xs mt-1" style="color:var(--muted-2)">', utils.escapeHTML(orderDate(order.createdAt)), ' · ', utils.escapeHTML((order.items || []).length), ' item', (order.items || []).length === 1 ? '' : 's', '</p>',
+        '</div>',
+        '<span class="price-now text-sm">', utils.money(order.total), '</span>',
+        '</div>',
+        '<p class="text-xs mt-3" style="color:var(--primary)">', utils.escapeHTML(statusLabel(order)), '</p>',
+        '</button>'
+      ].join('');
+    }).join('');
+  }
+
+  function renderOrdersPage(selectedId) {
+    var rootEl = document.getElementById('orders-root');
+    var listEl = document.getElementById('orders-list');
+    var detailEl = document.getElementById('orders-detail');
+    if (!rootEl || !listEl || !detailEl) return;
+
+    if (!root.api || !root.api.isEnabled()) {
+      rootEl.innerHTML = '<div class="p-8 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface)"><p class="font-display text-xl">Order tracking needs the backend API.</p><p class="text-sm mt-2" style="color:var(--muted)">Configure js/backend-config.js to connect this page to Django.</p></div>';
+      return;
+    }
+
+    if (!root.api.isAuthenticated()) {
+      rootEl.innerHTML = [
+        '<div class="p-8 rounded-[var(--radius-md)] border text-center" style="border-color:var(--line);background:var(--surface)">',
+        '<p class="font-display text-2xl">Sign in to track orders</p>',
+        '<p class="text-sm mt-2 max-w-lg mx-auto" style="color:var(--muted)">Your order history and detailed tracking are protected inside your account.</p>',
+        '<button type="button" data-open-account="login" class="btn btn-primary mt-6">Sign in or create account</button>',
+        '</div>'
+      ].join('');
+      return;
+    }
+
+    rootEl.classList.add('grid', 'lg:grid-cols-[360px_1fr]', 'gap-8');
+    listEl.innerHTML = '<div class="p-6 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface);color:var(--muted)">Loading your orders...</div>';
+    detailEl.innerHTML = orderDetailHTML(null);
+
+    root.api.getOrders().then(function (orders) {
+      selectedId = selectedId || new URLSearchParams(window.location.search).get('order') || (orders[0] && orders[0].id);
+      listEl.innerHTML = renderOrdersList(orders, selectedId);
+      var selected = orders.find(function (order) {
+        return order.id === selectedId;
+      });
+      if (selected) {
+        detailEl.innerHTML = orderDetailHTML(selected);
+      } else if (selectedId) {
+        showOrderDetail(selectedId);
+      } else {
+        detailEl.innerHTML = orderDetailHTML(null);
+      }
+    }).catch(function (error) {
+      listEl.innerHTML = '';
+      detailEl.innerHTML = '<div class="p-8 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface)"><p class="font-display text-xl">Could not load orders</p><p class="text-sm mt-2" style="color:var(--muted)">' + utils.escapeHTML(error.message) + '</p></div>';
+    });
+  }
+
+  function showOrderDetail(id) {
+    var detailEl = document.getElementById('orders-detail');
+    if (!detailEl || !root.api || !root.api.isEnabled()) return;
+    detailEl.innerHTML = '<div class="p-8 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface);color:var(--muted)">Loading order details...</div>';
+    root.api.getOrder(id).then(function (order) {
+      detailEl.innerHTML = orderDetailHTML(order);
+      var listEl = document.getElementById('orders-list');
+      if (listEl) {
+        listEl.querySelectorAll('[data-order-detail]').forEach(function (button) {
+          var active = button.getAttribute('data-order-detail') === id;
+          button.style.borderColor = active ? 'var(--primary)' : 'var(--line)';
+          button.style.background = active ? 'rgba(245,184,46,0.08)' : 'var(--surface)';
+        });
+      }
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', 'orders.html?order=' + encodeURIComponent(id));
+      }
+    }).catch(function (error) {
+      detailEl.innerHTML = '<div class="p-8 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface)"><p class="font-display text-xl">Order not found</p><p class="text-sm mt-2" style="color:var(--muted)">' + utils.escapeHTML(error.message) + '</p></div>';
+    });
+  }
+
+  function renderCheckoutSuccess() {
+    var rootEl = document.getElementById('checkout-success-root');
+    var detailEl = document.getElementById('checkout-order-detail');
+    if (!rootEl || !detailEl) return;
+
+    var params = new URLSearchParams(window.location.search);
+    var orderId = params.get('order');
+    if (!orderId) {
+      detailEl.innerHTML = '';
+      return;
+    }
+
+    store.Store.clearCart();
+
+    if (!root.api || !root.api.isEnabled() || !root.api.isAuthenticated()) {
+      detailEl.innerHTML = '<div class="mt-10 p-6 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface)"><p class="font-display text-xl">Sign in to review order details</p><p class="text-sm mt-2" style="color:var(--muted)">Use the same account from checkout to view the order summary and tracking.</p><button type="button" data-open-account="login" class="btn btn-primary mt-5">Sign in</button></div>';
+      return;
+    }
+
+    detailEl.innerHTML = '<div class="mt-10 p-6 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface);color:var(--muted)">Loading order details...</div>';
+    root.api.getOrder(orderId).then(function (order) {
+      detailEl.innerHTML = '<div class="mt-10 text-left">' + orderDetailHTML(order) + '</div>';
+      var trackLink = document.getElementById('track-order-link');
+      if (trackLink) trackLink.href = 'orders.html?order=' + encodeURIComponent(order.id);
+    }).catch(function (error) {
+      detailEl.innerHTML = '<div class="mt-10 p-6 rounded-[var(--radius-md)] border" style="border-color:var(--line);background:var(--surface)"><p class="font-display text-xl">Could not load order details</p><p class="text-sm mt-2" style="color:var(--muted)">' + utils.escapeHTML(error.message) + '</p></div>';
+    });
+  }
+
   function refreshCatalogViews() {
     var catalog = store.loadCatalog();
     window.PRODUCTS = catalog.products;
@@ -370,6 +643,9 @@
     resetShopFilters: resetShopFilters,
     setShopFilter: setShopFilter,
     renderProductPage: renderProductPage,
+    renderOrdersPage: renderOrdersPage,
+    showOrderDetail: showOrderDetail,
+    renderCheckoutSuccess: renderCheckoutSuccess,
     updateProductDetailQty: updateProductDetailQty,
     currentProductDetailQty: currentProductDetailQty,
     setupCalculator: setupCalculator,

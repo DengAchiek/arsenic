@@ -152,6 +152,9 @@
     getOrders: function () {
       return request('/orders/');
     },
+    getOrder: function (id) {
+      return request('/orders/' + encodeURIComponent(id) + '/');
+    },
     createProduct: function (data) {
       return request('/products/', { method: 'POST', body: data });
     },

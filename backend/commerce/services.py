@@ -1,4 +1,5 @@
 from decimal import Decimal, ROUND_HALF_UP
+from types import SimpleNamespace
 
 import stripe
 from django.conf import settings
@@ -148,6 +149,8 @@ def stripe_line_items(order):
 @transaction.atomic
 def create_stripe_checkout_session(validated_data, user=None):
     if not settings.STRIPE_SECRET_KEY:
+        if settings.ALLOW_MOCK_CHECKOUT:
+            return create_mock_checkout_session(validated_data, user=user)
         raise serializers.ValidationError({"stripe": "STRIPE_SECRET_KEY is not configured."})
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -169,6 +172,21 @@ def create_stripe_checkout_session(validated_data, user=None):
     order.stripe_checkout_session_id = session.id
     order.save(update_fields=["stripe_checkout_session_id", "updated_at"])
     return order, session
+
+
+def create_mock_checkout_session(validated_data, user=None):
+    order = create_pending_order(validated_data, user=user)
+    session_id = "mock_%s" % order.public_id
+    success_url = validated_data.get("success_url") or absolute_frontend_url(settings.ORDER_SUCCESS_PATH)
+    separator = "&" if "?" in success_url else "?"
+    order.stripe_checkout_session_id = session_id
+    order.save(update_fields=["stripe_checkout_session_id", "updated_at"])
+    order.mark_paid(payment_intent_id="mock_pi_%s" % order.public_id)
+    decrement_inventory(order)
+    return order, SimpleNamespace(
+        id=session_id,
+        url="%ssession_id=%s&order=%s&mock_checkout=1" % (success_url + separator, session_id, order.public_id),
+    )
 
 
 def send_order_confirmation(order):

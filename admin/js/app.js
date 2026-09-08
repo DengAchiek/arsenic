@@ -3,6 +3,7 @@
 
   var editingProductId = null;
   var editingCategoryId = null;
+  var adminEventsBound = false;
 
   function escapeHTML(value) {
     return String(value == null ? '' : value)
@@ -46,6 +47,122 @@
     window.__toastTimer = setTimeout(function () {
       toast.style.transform = 'translateY(140%)';
     }, 2600);
+  }
+
+  function backendAPI() {
+    return window.Arsenic && window.Arsenic.api && window.Arsenic.api.isEnabled() ? window.Arsenic.api : null;
+  }
+
+  function showLoginError(message) {
+    var error = get('admin-login-error');
+    if (!error) return;
+    error.textContent = message || '';
+    error.style.display = message ? 'block' : 'none';
+  }
+
+  function setLoginBusy(isBusy) {
+    var button = get('admin-login-submit');
+    if (!button) return;
+    button.disabled = isBusy;
+    button.textContent = isBusy ? 'Signing in...' : 'Sign in';
+  }
+
+  function showAdminLogin(message) {
+    var auth = get('admin-auth');
+    var app = get('admin-app');
+    if (auth) auth.style.display = 'flex';
+    if (app) app.style.display = 'none';
+    showLoginError(message || '');
+  }
+
+  function showAdminApp(user) {
+    var auth = get('admin-auth');
+    var app = get('admin-app');
+    var current = get('admin-current-user');
+    if (auth) auth.style.display = 'none';
+    if (app) app.style.display = 'block';
+    if (current) {
+      current.innerHTML = [
+        '<p class="font-display text-sm">', escapeHTML(user.name || user.email || 'Admin'), '</p>',
+        '<p class="text-xs" style="color:var(--muted-2)">', escapeHTML(user.email || ''), '</p>'
+      ].join('');
+    }
+    showLoginError('');
+  }
+
+  async function verifyAdminSession() {
+    var api = backendAPI();
+    if (!api) {
+      showAdminLogin('Backend API is required for admin login. Configure js/backend-config.js.');
+      return false;
+    }
+    if (!api.isAuthenticated()) {
+      showAdminLogin('');
+      return false;
+    }
+
+    try {
+      var user = await api.me();
+      if (!user || !user.is_staff) {
+        showAdminLogin('This account is not a staff admin.');
+        return false;
+      }
+      showAdminApp(user);
+      return true;
+    } catch (error) {
+      showAdminLogin('Session expired. Please sign in again.');
+      return false;
+    }
+  }
+
+  async function handleAdminLogin(event) {
+    event.preventDefault();
+    var api = backendAPI();
+    if (!api) {
+      showLoginError('Backend API is required for admin login. Configure js/backend-config.js.');
+      return;
+    }
+
+    var email = get('admin-email-input') ? get('admin-email-input').value.trim() : '';
+    var password = get('admin-password-input') ? get('admin-password-input').value : '';
+    var remember = get('admin-remember-input') ? get('admin-remember-input').checked : true;
+    if (!email || !password) {
+      showLoginError('Enter your admin email and password.');
+      return;
+    }
+
+    setLoginBusy(true);
+    showLoginError('');
+    try {
+      var result = await api.login({ email: email, password: password, remember: remember });
+      if (!result.user || !result.user.is_staff) {
+        api.clearSession();
+        showAdminLogin('This account is not a staff admin.');
+        return;
+      }
+      showAdminApp(result.user);
+      showToast('Signed in');
+      await loadAdminData();
+    } catch (error) {
+      showLoginError(error.message || 'Could not sign in.');
+    } finally {
+      setLoginBusy(false);
+    }
+  }
+
+  async function handleAdminLogout() {
+    var api = backendAPI();
+    try {
+      if (api && api.isAuthenticated()) await api.logout();
+    } catch (error) {
+      if (api) api.clearSession();
+    }
+    window.AppState.setProducts([]);
+    window.AppState.setCategories([]);
+    window.AppState.setOrders([]);
+    window.AppState.setProfile(null);
+    showAdminLogin('');
+    showToast('Logged out');
   }
 
   async function loadAdminData() {
@@ -341,6 +458,14 @@
   }
 
   function setupAdminEvents() {
+    if (adminEventsBound) return;
+    adminEventsBound = true;
+
+    var loginForm = get('admin-login-form');
+    var logoutButton = get('admin-logout-btn');
+    if (loginForm) loginForm.addEventListener('submit', handleAdminLogin);
+    if (logoutButton) logoutButton.addEventListener('click', handleAdminLogout);
+
     document.querySelectorAll('.tab-btn').forEach(function (button) {
       button.addEventListener('click', function () {
         setActiveTab(button.dataset.tab);
@@ -372,7 +497,8 @@
     if (!window.AppState || !window.API) return;
     setupAdminEvents();
     setActiveTab('categories');
-    await loadAdminData();
+    var hasAccess = await verifyAdminSession();
+    if (hasAccess) await loadAdminData();
   }
 
   window.openProductModal = openProductModal;

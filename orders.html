@@ -3,29 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout Complete — Arsenic Energies</title>
-<meta name="description" content="Your Arsenic Energies checkout is complete.">
+<title>Track Orders — Arsenic Energies</title>
+<meta name="description" content="Track and review your Arsenic Energies orders.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="js/tailwind-config.js?v=20260907-orders"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="css/styles.css?v=20260907-orders">
 </head>
-<body data-page="shop">
+<body data-page="orders">
 <a href="#main" class="skip-link">Skip to content</a>
 <div data-site-header></div>
 
-<main id="main" class="pt-36 lg:pt-44 pb-24 max-w-[1180px] mx-auto px-6 lg:px-10">
-  <section id="checkout-success-root" class="reveal text-center">
-    <p class="nameplate mx-auto mb-6"><span class="dot"></span> PAYMENT RECEIVED</p>
-    <h1 class="font-display text-4xl lg:text-6xl leading-tight">Your order is in.</h1>
-    <p class="mt-6 text-lg max-w-2xl mx-auto" style="color:var(--muted)">Thank you for choosing Arsenic Energies. A sales specialist will contact you with delivery and installation details.</p>
-    <div class="flex flex-wrap justify-center gap-4 mt-10">
-      <a href="shop.html" class="btn btn-primary">Continue shopping</a>
-      <a href="orders.html" id="track-order-link" class="btn btn-outline">Track order</a>
-      <a href="index.html#footer" class="btn btn-outline">Contact sales</a>
-    </div>
-    <div id="checkout-order-detail"></div>
+<main id="main" class="pt-32 lg:pt-40 pb-24 max-w-[1400px] mx-auto px-6 lg:px-10">
+  <div class="mb-10 reveal">
+    <p class="nameplate mb-4"><span class="dot"></span> CUSTOMER ORDERS</p>
+    <h1 class="font-display text-4xl lg:text-5xl">Track and review orders</h1>
+    <p class="mt-4 max-w-2xl" style="color:var(--muted)">Review purchased products, payment status, order totals, and delivery progress from your account.</p>
+  </div>
+
+  <section id="orders-root" class="reveal">
+    <div id="orders-list" class="space-y-3"></div>
+    <div id="orders-detail"></div>
   </section>
 </main>
 

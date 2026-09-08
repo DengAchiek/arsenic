@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Django API (8001)",
+      "type": "shell",
+      "command": "${workspaceFolder}/backend/.venv/bin/python",
+      "args": [
+        "${workspaceFolder}/backend/manage.py",
+        "runserver",
+        "127.0.0.1:8001",
+        "--noreload"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "DJANGO_DEBUG": "True",
+          "DJANGO_ALLOW_MOCK_CHECKOUT": "True",
+          "DJANGO_SECURE_SSL_REDIRECT": "False",
+          "DJANGO_ALLOWED_HOSTS": "localhost,127.0.0.1,testserver",
+          "DJANGO_CORS_ALLOWED_ORIGINS": "http://127.0.0.1:8000,http://localhost:8000",
+          "DJANGO_CSRF_TRUSTED_ORIGINS": "http://127.0.0.1:8000,http://localhost:8000",
+          "FRONTEND_BASE_URL": "http://127.0.0.1:8000",
+          "BACKEND_BASE_URL": "http://127.0.0.1:8001"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Static Frontend (8000)",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "-m",
+        "http.server",
+        "8000"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Full Local App",
+      "dependsOn": [
+        "Run Django API (8001)",
+        "Run Static Frontend (8000)"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}
