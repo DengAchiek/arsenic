@@ -18,6 +18,7 @@ services:
     autoDeployTrigger: commit
     buildFilter:
       paths:
+        - Dockerfile
         - backend/**
         - render.yaml
     envVars:

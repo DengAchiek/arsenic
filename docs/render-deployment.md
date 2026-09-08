@@ -32,6 +32,24 @@ DJANGO_CORS_ALLOWED_ORIGINS=https://<static-site-hostname>,https://arsenicenergi
 DJANGO_CSRF_TRUSTED_ORIGINS=https://<static-site-hostname>,https://<api-service-hostname>,https://arsenicenergies.com,https://www.arsenicenergies.com,https://api.arsenicenergies.com
 ```
 
+## If Render Looks For `Dockerfile`
+
+If the logs show:
+
+```text
+failed to read dockerfile: open Dockerfile: no such file or directory
+```
+
+the service was created as a Docker service from the repository root instead of from the Blueprint's Python/static service definitions.
+
+The repo includes a root `Dockerfile` now so that setup can still build the Django API. For the non-monolithic deployment requested here, use the Blueprint in `render.yaml` so Render creates:
+
+- a Static Site for the frontend
+- a Python Web Service for the Django API
+- a PostgreSQL database
+
+If you keep a manually created Docker service, it should represent only the API. Create the frontend separately as a Render Static Site with `./scripts/render-build-frontend.sh` as the build command and `dist` as the publish directory.
+
 ## Required Secret Values
 
 Render will prompt for env vars marked `sync: false` in `render.yaml`.

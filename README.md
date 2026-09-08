@@ -51,5 +51,6 @@ The project uses browser `localStorage`:
 - `checkout-success.html` - Stripe Checkout success return page with order review.
 - `orders.html` - Customer order tracking page powered by the authenticated `/api/orders/` endpoints.
 - `render.yaml` - Render Blueprint that deploys the static frontend, Django API, and PostgreSQL database as separate services with deploy filters.
+- `Dockerfile` - Root-level fallback Dockerfile for Render services that are configured to build the Django API from the repository root.
 
 See `backend/README.md` for backend setup and `docs/render-deployment.md` for Render deployment, Stripe webhook, SendGrid/AWS SES, and Cloudflare/R2 configuration.
