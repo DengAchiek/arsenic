@@ -4,6 +4,7 @@
   var root = window.Arsenic = window.Arsenic || {};
   var utils = root.utils;
   var store = root.store;
+  var SALES_WHATSAPP_URL = 'https://wa.me/254700000000?text=Hello%20Arsenic%20Energies%2C%20I%20need%20help%20with%20solar%20products.';
 
   function pageName() {
     return (document.body && document.body.dataset.page) || 'home';
@@ -68,6 +69,15 @@
     return [
       '<a href="', href, '" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full border flex items-center justify-center hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors" style="border-color:var(--line);color:var(--muted)" aria-label="', label, '">',
       socialIcon(icon),
+      '</a>'
+    ].join('');
+  }
+
+  function floatingWhatsAppHTML() {
+    return [
+      '<a href="', SALES_WHATSAPP_URL, '" target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Chat with Arsenic Energies on WhatsApp">',
+      '<span class="whatsapp-float__icon">', socialIcon('whatsapp'), '</span>',
+      '<span class="whatsapp-float__label">WhatsApp</span>',
       '</a>'
     ].join('');
   }
@@ -323,7 +333,7 @@
       socialLink('Instagram', 'https://www.instagram.com/arsenicenergies', 'instagram'),
       socialLink('X', 'https://x.com/arsenicenergies', 'x'),
       socialLink('TikTok', 'https://www.tiktok.com/@arsenicenergies', 'tiktok'),
-      socialLink('WhatsApp', 'https://wa.me/254700000000?text=Hello%20Arsenic%20Energies%2C%20I%20need%20help%20with%20solar%20products.', 'whatsapp'),
+      socialLink('WhatsApp', SALES_WHATSAPP_URL, 'whatsapp'),
       '</div>',
       '</div>',
       '</div>',
@@ -399,7 +409,7 @@
   function mountSharedLayout() {
     mount('[data-site-header]', siteNavHTML() + mobileMenuHTML());
     mount('[data-site-footer]', footerHTML());
-    mount('[data-site-overlays]', searchModalHTML() + profileModalHTML() + cartDrawerHTML() + quickViewHTML() + toastHTML());
+    mount('[data-site-overlays]', searchModalHTML() + profileModalHTML() + cartDrawerHTML() + quickViewHTML() + toastHTML() + floatingWhatsAppHTML());
   }
 
   root.components = {
