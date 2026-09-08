@@ -53,6 +53,25 @@
     return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#14100A" stroke-width="2.5" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
   }
 
+  function socialIcon(name) {
+    var icons = {
+      facebook: '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.2 8.3h2.4V4.6c-.4-.1-1.8-.2-3.4-.2-3.3 0-5.5 2-5.5 5.7v3.2H4v4.1h3.7V24h4.5v-6.6h3.5l.6-4.1h-4.1V10.5c0-1.2.3-2.2 2-2.2z"/></svg>',
+      instagram: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.3" cy="6.9" r="1.1" fill="currentColor" stroke="none"/></svg>',
+      x: '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.7 3h3.4l-7.4 8.5L22.4 21h-6.8l-5.3-6.9L4.2 21H.8l7.9-9L.4 3h7l4.8 6.3L17.7 3zm-1.2 16.3h1.9L6.4 4.6H4.3l12.2 14.7z"/></svg>',
+      tiktok: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 3c.4 2.6 1.9 4.1 4.4 4.3v4c-1.5 0-2.9-.4-4.3-1.3v6.4c0 3.3-2.3 5.6-5.7 5.6-3.1 0-5.6-2.2-5.6-5.2 0-3.2 2.5-5.5 5.9-5.5.4 0 .8 0 1.1.1v4.1c-.3-.1-.7-.2-1.1-.2-1.2 0-2.1.7-2.1 1.7s.8 1.7 1.9 1.7c1.2 0 1.9-.7 1.9-2.2V3h3.6z"/></svg>',
+      whatsapp: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.4 19.1 6.2 16A8 8 0 1 1 9 18.6l-3.6.5z"/><path d="M9.2 8.8c.2-.4.4-.5.7-.5h.5c.2 0 .4 0 .5.4l.6 1.4c.1.3.1.5-.1.7l-.4.5c-.1.1-.2.3 0 .5.4.8 1.3 1.7 2.2 2.2.2.1.4.1.5-.1l.6-.7c.2-.2.4-.2.7-.1l1.5.7c.3.1.4.3.4.6 0 .7-.5 1.5-1.2 1.7-.7.3-1.7.1-2.8-.4-2.4-1-4.4-3.3-5.1-5.2-.3-.8-.3-1.4-.1-1.9z"/></svg>'
+    };
+    return icons[name] || '';
+  }
+
+  function socialLink(label, href, icon) {
+    return [
+      '<a href="', href, '" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full border flex items-center justify-center hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors" style="border-color:var(--line);color:var(--muted)" aria-label="', label, '">',
+      socialIcon(icon),
+      '</a>'
+    ].join('');
+  }
+
   function siteNavHTML() {
     return [
       '<nav id="site-nav" aria-label="Primary">',
@@ -300,11 +319,11 @@
       '<button type="submit" class="btn btn-primary btn-sm w-full">Send to sales</button>',
       '</form>',
       '<div class="flex flex-wrap gap-3 mt-5">',
-      '<a href="https://www.facebook.com/arsenicenergies" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full border flex items-center justify-center hover:border-[var(--primary)] transition-colors" style="border-color:var(--line)" aria-label="Facebook">f</a>',
-      '<a href="https://www.instagram.com/arsenicenergies" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full border flex items-center justify-center hover:border-[var(--primary)] transition-colors" style="border-color:var(--line)" aria-label="Instagram">ig</a>',
-      '<a href="https://x.com/arsenicenergies" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full border flex items-center justify-center hover:border-[var(--primary)] transition-colors" style="border-color:var(--line)" aria-label="X">x</a>',
-      '<a href="https://www.tiktok.com/@arsenicenergies" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full border flex items-center justify-center hover:border-[var(--primary)] transition-colors" style="border-color:var(--line)" aria-label="TikTok">tt</a>',
-      '<a href="https://wa.me/254700000000?text=Hello%20Arsenic%20Energies%2C%20I%20need%20help%20with%20solar%20products." target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full border flex items-center justify-center hover:border-[var(--primary)] transition-colors" style="border-color:var(--line)" aria-label="WhatsApp">wa</a>',
+      socialLink('Facebook', 'https://www.facebook.com/arsenicenergies', 'facebook'),
+      socialLink('Instagram', 'https://www.instagram.com/arsenicenergies', 'instagram'),
+      socialLink('X', 'https://x.com/arsenicenergies', 'x'),
+      socialLink('TikTok', 'https://www.tiktok.com/@arsenicenergies', 'tiktok'),
+      socialLink('WhatsApp', 'https://wa.me/254700000000?text=Hello%20Arsenic%20Energies%2C%20I%20need%20help%20with%20solar%20products.', 'whatsapp'),
       '</div>',
       '</div>',
       '</div>',
