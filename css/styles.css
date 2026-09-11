@@ -134,6 +134,36 @@ body {
   -webkit-backdrop-filter: blur(14px);
   border-bottom-color: var(--line);
 }
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--text);
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+}
+.site-brand-logo {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.32));
+}
+.site-brand-text {
+  display: grid;
+  gap: 2px;
+}
+.site-brand-text span:first-child {
+  font-size: 15px;
+  font-weight: 700;
+}
+.site-brand-text span:last-child {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
 .nav-link {
   position: relative;
   color: var(--muted);
@@ -533,6 +563,28 @@ body {
   font-size: 13px;
   font-weight: 700;
 }
+.footer-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+.footer-brand-logo {
+  width: 66px;
+  height: 66px;
+  flex: 0 0 66px;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 24px rgba(0,0,0,0.34));
+}
+.footer-brand-name {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
 .footer-brand h2 {
   max-width: 390px;
   margin-top: 18px;
@@ -785,6 +837,22 @@ body {
 }
 
 @media (max-width: 620px) {
+  .site-brand-logo {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+  .site-brand-text span:first-child {
+    font-size: 14px;
+  }
+  .site-brand-text span:last-child {
+    font-size: 11px;
+  }
+  .footer-brand-logo {
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
+  }
   .footer-brand h2 {
     font-size: 27px;
   }

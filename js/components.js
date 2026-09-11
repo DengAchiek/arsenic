@@ -4,6 +4,7 @@
   var root = window.Arsenic = window.Arsenic || {};
   var utils = root.utils;
   var store = root.store;
+  var BRAND_LOGO_SRC = 'assets/images/brand/arsenic-energies-logo.png';
   var SALES_WHATSAPP_URL = 'https://wa.me/256777898570?text=Hello%20Arsenic%20Energies%2C%20I%20need%20help%20with%20solar%20products.';
 
   function pageName() {
@@ -26,10 +27,13 @@
 
   function brandHTML() {
     return [
-      '<a href="index.html" class="font-display leading-none">',
-      '<span class="block text-[15px] tracking-wide font-semibold">ARSENIC</span>',
-      '<span class="block text-[11px] tracking-[0.2em]" style="color:var(--primary)">ENERGIES</span>',
-      '</a>'
+      '<div class="site-brand">',
+      '<img class="site-brand-logo" src="', BRAND_LOGO_SRC, '" alt="" aria-hidden="true">',
+      '<span class="site-brand-text font-display">',
+      '<span>Arsenic</span>',
+      '<span>Energies</span>',
+      '</span>',
+      '</div>'
     ].join('');
   }
 
@@ -279,7 +283,13 @@
       '<footer id="footer" class="site-footer">',
       '<div class="footer-wrap">',
       '<div class="footer-brand">',
+      '<div class="footer-brand-lockup">',
+      '<img class="footer-brand-logo" src="', BRAND_LOGO_SRC, '" alt="" aria-hidden="true">',
+      '<div>',
       '<p class="footer-kicker">ARSENIC ENERGIES</p>',
+      '<span class="footer-brand-name">Arsenic Energies</span>',
+      '</div>',
+      '</div>',
       '<h2>Powering life across homes, teams and businesses.</h2>',
       '<p>Solar systems, batteries, inverters and electrical products selected for dependable daily energy.</p>',
       '<div class="footer-badges">',
